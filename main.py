@@ -4,6 +4,12 @@ import tile
 from preparation import *
 
 
+# TODO - vstupování figurek do cíle
+# TODO - zabránit figurkám opakovat kolo
+# TODO - vyhazování figurek
+# TODO - blokování figurek
+
+
 class Game:
     def __init__(self):
         self.dice_roll = 0
@@ -18,8 +24,6 @@ class Game:
         for i in pl.player1.figures:
             self.figs1.append(i.tile.position)
 
-        print(self.figs1)
-
         if self.figs1[0] + self.figs1[1] + self.figs1[2] + self.figs1[3] == 0:
             pl.player1.undeployed = True
             print("Hráč 1 nemá žádnou nasazenou figurku.\n")
@@ -32,8 +36,6 @@ class Game:
         self.figs2 = []
         for j in pl.player2.figures:
             self.figs2.append(j.tile.position)
-
-        print(self.figs2)
 
         if self.figs2[0] + self.figs2[1] + self.figs2[2] + self.figs2[3] == 0:
             pl.player2.undeployed = True
@@ -73,16 +75,16 @@ class Game:
 
     def side_selection(self):
         if pl.player4.playing and pl.player4.turns < pl.player3.turns:
-            print("Hraje hráč 4.")
+            print("Hraje hráč 4. -", pl.player4.color)
             return pl.player4
         elif pl.player3.playing and pl.player3.turns < pl.player2.turns:
-            print("Hraje hráč 3.")
+            print("Hraje hráč 3. -", pl.player3.color)
             return pl.player3
         elif pl.player2.turns < pl.player1.turns:
-            print("Hraje hráč 2.")
+            print("Hraje hráč 2. -", pl.player2.color)
             return pl.player2
         else:
-            print("Hraje hráč 1.")
+            print("Hraje hráč 1. -", pl.player1.color)
             return pl.player1
 
     def deploying(self, fig):
@@ -179,7 +181,7 @@ class Game:
 
         return new_tile
 
-    def all_home(self,  side):
+    def all_home(self, side):
         deploy = True
 
         if self.dice_roll == 6:
@@ -194,12 +196,10 @@ class Game:
                 else:
                     print("Padla vám", self.dice_roll)
             else:
-                print("Nemůžete nasadit, možná příště.\n")
                 deploy = False
 
         if deploy:
             self.dice_roll = random.randint(1, 6)
-            print("Jako další vám padla", self.dice_roll)
             return self.deploying(side.figures[0])
 
     def possible_move(self, fig):
@@ -213,9 +213,6 @@ class Game:
         else:
             movable = True
             move = "reposition"
-
-        if movable:
-            print("#test -", move)
 
         return movable, move
 
@@ -272,8 +269,9 @@ class Game:
 
         mov1, mov2, mov3, mov4 = self.string_compilation(fig1, fig2, fig3, fig4)
 
-        while mov1 != "" and mov2 != "" and mov3 != "" and mov4 != "":
-            player_option = input("Můžete{}{}{}{}".format(mov1, mov2, mov3, mov4))
+        while mov1 != "" or mov2 != "" or mov3 != "" or mov4 != "":
+            print("Padla vám {}.".format(self.dice_roll))
+            player_option = input("Můžete{}{}{}{}\n".format(mov1, mov2, mov3, mov4))
             if player_option == "1" and mov1 != "":
                 if fig1.tile.position == 0:
                     self.deploying(fig1)
@@ -281,19 +279,19 @@ class Game:
                     self.repositioning(fig1)
                 break
             elif player_option == "2" and mov2 != "":
-                if fig1.tile.position == 0:
+                if fig2.tile.position == 0:
                     self.deploying(fig2)
                 else:
                     self.repositioning(fig2)
                 break
             elif player_option == "3" and mov3 != "":
-                if fig1.tile.position == 0:
+                if fig3.tile.position == 0:
                     self.deploying(fig3)
                 else:
                     self.repositioning(fig3)
                 break
             elif player_option == "4" and mov4 != "":
-                if fig1.tile.position == 0:
+                if fig4.tile.position == 0:
                     self.deploying(fig4)
                 else:
                     self.repositioning(fig4)
