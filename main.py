@@ -3,7 +3,7 @@ import time
 import tile
 from preparation import *
 
-# TODO - Three player mode
+# TODO - Side selection caring for finished players
 # TODO - AI
 # TODO - Saving results to different file
 
@@ -57,73 +57,77 @@ class Game:
         # info o figurkách hráče 1
         if pl.player1.playing:
             self.figs1 = []
-            for i in pl.player1.figures:
-                if i.tile.finish is False:
-                    self.figs1.append(i.tile.position)
+            for figure in pl.player1.figures:
+                if figure.tile.finish is False:
+                    self.figs1.append(figure.tile.position)
                 else:
-                    self.figs1.append(-i.tile.position)
-
-            if self.figs1[0] + self.figs1[1] + self.figs1[2] + self.figs1[3] == 0:
+                    self.figs1.append(-figure.tile.position)
+            for fig in self.figs1:
+                if fig.tile.number != 0:
+                    print("Figurky hráče jedna jsou na políčkách:", self.figs1[0], self.figs1[1], self.figs1[2],
+                          self.figs1[3], "\n")
+                    pl.player1.undeployed = False
+                    break
+            else:
                 pl.player1.undeployed = True
                 print("Hráč 1 nemá žádnou nasazenou figurku.\n")
-            else:
-                print("Figurky hráče jedna jsou na políčkách:", self.figs1[0], self.figs1[1], self.figs1[2],
-                      self.figs1[3], "\n")
-                pl.player1.undeployed = False
             self.finish_control(pl.player1)
 
         # info o figurkách hráče 2
         if pl.player2.playing:
             self.figs2 = []
-            for j in pl.player2.figures:
-                if j.tile.finish is False:
-                    self.figs2.append(j.tile.position)
+            for figure in pl.player2.figures:
+                if figure.tile.finish is False:
+                    self.figs2.append(figure.tile.position)
                 else:
-                    self.figs2.append(-j.tile.position)
-
-            if self.figs2[0] + self.figs2[1] + self.figs2[2] + self.figs2[3] == 0:
+                    self.figs2.append(-figure.tile.position)
+            for fig in self.figs2:
+                if fig.tile.number != 0:
+                    print("Figurky hráče dva jsou na políčkách:", self.figs2[0], self.figs2[1], self.figs2[2],
+                          self.figs2[3], "\n")
+                    pl.player2.undeployed = False
+                    break
+            else:
                 pl.player2.undeployed = True
                 print("Hráč 2 nemá žádnou nasazenou figurku.\n")
-            else:
-                print("Figurky hráče dva jsou na políčkách:", self.figs2[0], self.figs2[1], self.figs2[2],
-                      self.figs2[3], "\n")
-                pl.player2.undeployed = False
             self.finish_control(pl.player2)
 
         # info o figurkách hráče 3
         if pl.player3.playing:
             self.figs3 = []
-            for k in pl.player3.figures:
-                if k.tile.finish is False:
-                    self.figs3.append(k.tile.position)
+            for figure in pl.player3.figures:
+                if figure.tile.finish is False:
+                    self.figs3.append(figure.tile.position)
                 else:
-                    self.figs3.append(-k.tile.position)
-
-            if self.figs3[0] + self.figs3[1] + self.figs3[2] + self.figs3[3] == 0:
+                    self.figs3.append(-figure.tile.position)
+            for fig in self.figs3:
+                if fig.tile.number != 0:
+                    print("Figurky hráče tři jsou na políčkách:", self.figs3[0], self.figs3[1], self.figs3[2],
+                          self.figs3[3], "\n")
+                    pl.player3.undeployed = False
+                    break
+            else:
                 pl.player3.undeployed = True
                 print("Hráč 3 nemá žádnou nasazenou figurku.\n")
-            else:
-                print("Figurky hráče tři jsou na políčkách:", self.figs3[0], self.figs3[1], self.figs3[2],
-                      self.figs3[3], "\n")
-                pl.player3.undeployed = False
             self.finish_control(pl.player3)
 
         # info o figurkách hráče 4
         if pl.player4.playing:
             self.figs4 = []
-            for l in pl.player4.figures:
-                if l.tile.finish is False:
-                    self.figs4.append(l.tile.position)
+            for figure in pl.player4.figures:
+                if figure.tile.finish is False:
+                    self.figs4.append(figure.tile.position)
                 else:
-                    self.figs4.append(-l.tile.position)
-
-            if self.figs4[0] + self.figs4[1] + self.figs4[2] + self.figs4[3] == 0:
+                    self.figs4.append(-figure.tile.position)
+            for fig in self.figs4:
+                if fig.tile.number != 0:
+                    print("Figurky hráče čtyři jsou na políčkách:", self.figs4[0], self.figs4[1], self.figs4[2],
+                          self.figs4[3], "\n")
+                    pl.player4.undeployed = False
+                    break
+            else:
                 pl.player4.undeployed = True
                 print("Hráč 4 nemá žádnou nasazenou figurku.\n")
-            else:
-                print("Figurky hráče čtyři jsou na políčkách:", self.figs4[0], self.figs4[1], self.figs4[2],
-                      self.figs4[3], "\n")
-                pl.player4.undeployed = False
             self.finish_control(pl.player4)
 
     def side_selection(self):
@@ -134,7 +138,7 @@ class Game:
         elif pl.player3.playing and pl.player3.turns < pl.player2.turns:
             print("Hraje hráč 3. -", pl.player3.color)
             return pl.player3
-        elif pl.player2.playing and pl.player2.turns < pl.player1.turns:
+        elif pl.player2.playing and (pl.player2.turns < pl.player1.turns or not pl.player1.playing):
             print("Hraje hráč 2. -", pl.player2.color)
             return pl.player2
         elif pl.player1.playing:

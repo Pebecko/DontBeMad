@@ -70,9 +70,52 @@ def three_players():
 
     first_player()
 
-    while True:
-        player_option = input("Která barva hrát nebude?\n")
+    colors = ["red", "blue", "green", "yellow"]
+    figures = [[fig.red_fig1, fig.red_fig2, fig.red_fig3, fig.red_fig4],
+               [fig.blue_fig1, fig.blue_fig2, fig.blue_fig3, fig.blue_fig4],
+               [fig.green_fig1, fig.green_fig2, fig.green_fig3, fig.green_fig4],
+               [fig.yellow_fig1, fig.yellow_fig2, fig.yellow_fig3, fig.yellow_fig4]]
 
+    colors.remove(pl.player1.color)
+    figures.remove(pl.player1.figures)
+
+    if pl.player1.color == "red":
+        players = ["[m]odrá", "[z]elená", "[ž]lutá"]
+    elif pl.player1.color == "blue":
+        players = ["[č]ervená", "[z]elená", "[ž]lutá"]
+    elif pl.player1.color == "green":
+        players = ["[č]ervená", "[m]odrá", "[ž]lutá"]
+    else:
+        players = ["[č]ervená", "[m]odrá", "[z]elená"]
+
+    while True:
+        player_option = input("Jaká barva hrát nebude, {}, {}, nebo {}?\n".format(players[0], players[1], players[2]))
+        if player_option == "č" and pl.player1.color != "red":
+            colors.remove("red")
+            del figures[0]
+            break
+        elif player_option == "m" and pl.player1.color != "blue":
+            pos = colors.index("blue")
+            colors.remove("blue")
+            del figures[pos]
+            break
+        elif player_option == "z" and pl.player1.color != "green":
+            pos = colors.index("green")
+            colors.remove("green")
+            del figures[pos]
+            break
+        elif player_option == "ž" and pl.player1.color != "yellow":
+            pos = colors.index("yellow")
+            colors.remove("yellow")
+            del figures[pos]
+            break
+        else:
+            print("Zadaný vstup nesouhlasí s možnostmi.\n")
+
+    pl.player2.color, pl.player2.figures = colors[0], figures[0]
+    pl.player3.color, pl.player3.figures = colors[1], figures[1]
+
+    return
 
 def four_players():
     pl.player1.playing = True
