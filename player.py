@@ -6,6 +6,8 @@ class Player:
         self.figures = []
         self.playing = False
         self.undeployed = True
+        self.result = ""
+        self.rolls = []
 
 
 # definování hráčů
