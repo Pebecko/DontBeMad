@@ -2,6 +2,12 @@ import player as pl
 import figures as fig
 
 
+pl.player1.ai = True
+pl.player2.ai = True
+pl.player3.ai = True
+pl.player4.ai = True
+
+
 def first_player():
     while True:
         player_option = input("Jakou bude mít hráč 1 barvu, [č]ervenou, [m]odrou, [z]elenou, nebo [ž]lutou?\n")
@@ -46,19 +52,19 @@ def two_players():
         if player_option == "č" and pl.player1.color != "red":
             pl.player2.color = "red"
             pl.player2.figures = [fig.red_fig1, fig.red_fig2, fig.red_fig3, fig.red_fig4]
-            return
+            break
         elif player_option == "m" and pl.player1.color != "blue":
             pl.player2.color = "blue"
             pl.player2.figures = [fig.blue_fig1, fig.blue_fig2, fig.blue_fig3, fig.blue_fig4]
-            return
+            break
         elif player_option == "z" and pl.player1.color != "green":
             pl.player2.color = "green"
             pl.player2.figures = [fig.green_fig1, fig.green_fig2, fig.green_fig3, fig.green_fig4]
-            return
+            break
         elif player_option == "ž" and pl.player1.color != "yellow":
             pl.player2.color = "yellow"
             pl.player2.figures = [fig.yellow_fig1, fig.yellow_fig2, fig.yellow_fig3, fig.yellow_fig4]
-            return
+            break
         else:
             print("Zadaný vstup nesouhlasí s možnostmi.\n")
 
@@ -116,6 +122,7 @@ def three_players():
     pl.player3.color, pl.player3.figures = colors[1], figures[1]
 
     return
+
 
 def four_players():
     pl.player1.playing = True

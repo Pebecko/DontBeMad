@@ -1,3 +1,6 @@
+from tactics import *
+
+
 class Player:
     def __init__(self, num, color=""):
         self.number = num
@@ -8,6 +11,8 @@ class Player:
         self.undeployed = True
         self.result = ""
         self.rolls = []
+        self.ai = False
+        self.tactic = ""
 
 
 # definování hráčů

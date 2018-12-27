@@ -4,12 +4,13 @@ import tile
 from preparation import *
 
 # TODO - Side selection caring for finished players
-# TODO - AI
+# TODO - AI tactics
 # TODO - Saving results to different file
 
 
 class Game:
     def __init__(self):
+        self.wait_time = 0.01
         self.dice_roll = 0
         self.figs1 = []
         self.figs2 = []
@@ -47,7 +48,7 @@ class Game:
         for player in self.players:
             if player.playing:
                 num += 1
-                player_= player
+                player_ = player
 
         if num == 1:
             return self.player_placing(player_, True)
@@ -62,8 +63,8 @@ class Game:
                     self.figs1.append(figure.tile.position)
                 else:
                     self.figs1.append(-figure.tile.position)
-            for fig in self.figs1:
-                if fig.tile.number != 0:
+            for fig in pl.player1.figures:
+                if fig.tile.position != 0:
                     print("Figurky hráče jedna jsou na políčkách:", self.figs1[0], self.figs1[1], self.figs1[2],
                           self.figs1[3], "\n")
                     pl.player1.undeployed = False
@@ -81,8 +82,8 @@ class Game:
                     self.figs2.append(figure.tile.position)
                 else:
                     self.figs2.append(-figure.tile.position)
-            for fig in self.figs2:
-                if fig.tile.number != 0:
+            for fig in pl.player2.figures:
+                if fig.tile.position != 0:
                     print("Figurky hráče dva jsou na políčkách:", self.figs2[0], self.figs2[1], self.figs2[2],
                           self.figs2[3], "\n")
                     pl.player2.undeployed = False
@@ -100,8 +101,8 @@ class Game:
                     self.figs3.append(figure.tile.position)
                 else:
                     self.figs3.append(-figure.tile.position)
-            for fig in self.figs3:
-                if fig.tile.number != 0:
+            for fig in pl.player3.figures:
+                if fig.tile.position != 0:
                     print("Figurky hráče tři jsou na políčkách:", self.figs3[0], self.figs3[1], self.figs3[2],
                           self.figs3[3], "\n")
                     pl.player3.undeployed = False
@@ -119,8 +120,8 @@ class Game:
                     self.figs4.append(figure.tile.position)
                 else:
                     self.figs4.append(-figure.tile.position)
-            for fig in self.figs4:
-                if fig.tile.number != 0:
+            for fig in pl.player4.figures:
+                if fig.tile.position != 0:
                     print("Figurky hráče čtyři jsou na políčkách:", self.figs4[0], self.figs4[1], self.figs4[2],
                           self.figs4[3], "\n")
                     pl.player4.undeployed = False
@@ -359,11 +360,57 @@ class Game:
 
         return movable, move
 
-    def string_compilation(self, fig1, fig2, fig3, fig4):
+    def ai_move_choosing(self, fig1, fig1_movable, fig1_move,
+                         fig2, fig2_movable, fig2_move,
+                         fig3, fig3_movable, fig3_move,
+                         fig4, fig4_movable, fig4_move):
+
+        weight1, weight2, weight3, weight4 = 0, 0, 0, 0
+
+        if fig1_movable:
+            weight1 = 1
+        if fig2_movable:
+            weight2 = 1
+        if fig3_movable:
+            weight3 = 1
+        if fig4_movable:
+            weight4 = 1
+
+
+        if weight1 >= weight2 and weight1 >= weight3 and weight1 >= weight4:
+            if fig1_move == "deploy":
+                self.deploying(fig1)
+            elif fig1_move == "reposition":
+                self.repositioning(fig1)
+        elif weight2 >= weight1 and weight2 >= weight3 and weight2 >= weight4:
+            if fig2_move == "deploy":
+                self.deploying(fig2)
+            elif fig2_move == "reposition":
+                self.repositioning(fig2)
+        elif weight3 >= weight1 and weight3 >= weight2 and weight3 >= weight4:
+            if fig3_move == "deploy":
+                self.deploying(fig3)
+            elif fig3_move == "reposition":
+                self.repositioning(fig3)
+        else:
+            if fig4_move == "deploy":
+                self.deploying(fig4)
+            elif fig4_move == "reposition":
+                self.repositioning(fig4)
+
+        return
+
+    def string_compilation(self, fig1, fig2, fig3, fig4, ai=False):
         fig1_movable, fig1_move = self.possible_move(fig1)
         fig2_movable, fig2_move = self.possible_move(fig2)
         fig3_movable, fig3_move = self.possible_move(fig3)
         fig4_movable, fig4_move = self.possible_move(fig4)
+
+        if ai:
+            self.ai_move_choosing(fig1, fig1_movable, fig1_move,
+                                  fig2, fig2_movable, fig2_move,
+                                  fig3, fig3_movable, fig3_move,
+                                  fig4, fig4_movable, fig4_move)
 
         mov1 = ""
         mov2 = ""
@@ -410,9 +457,9 @@ class Game:
         fig3 = side.figures[2]
         fig4 = side.figures[3]
 
-        mov1, mov2, mov3, mov4 = self.string_compilation(fig1, fig2, fig3, fig4)
+        mov1, mov2, mov3, mov4 = self.string_compilation(fig1, fig2, fig3, fig4, side.ai)
 
-        while mov1 != "" or mov2 != "" or mov3 != "" or mov4 != "":
+        while (mov1 != "" or mov2 != "" or mov3 != "" or mov4 != "") and side.ai is False:
             print("Padla vám {}.".format(self.dice_roll))
             player_option = input("Můžete{}{}{}{}\n".format(mov1, mov2, mov3, mov4))
             if player_option == "1" and mov1 != "":
@@ -478,7 +525,7 @@ class Game:
             if self.dice_roll != 6:
                 side.turns += 1
 
-            time.sleep(0.0)
+            time.sleep(self.wait_time)
 
     def results(self):
         avr_1, avr_2, avr_3, avr_4 = 0, 0, 0, 0
@@ -506,8 +553,8 @@ class Game:
             if len(pl.player4.rolls) != 0:
                 avr_4 /= len(pl.player4.rolls)
 
-        print(pl.player1.result, avr_1, pl.player1.rolls,"\n", pl.player2.result, avr_2, pl.player2.rolls, "\n",
-              pl.player3.result, avr_3, pl.player3.rolls,"\n", pl.player4.result, avr_4, pl.player4.rolls)
+        print(pl.player1.result, avr_1, pl.player1.rolls, "\n", pl.player2.result, avr_2, pl.player2.rolls, "\n",
+              pl.player3.result, avr_3, pl.player3.rolls, "\n", pl.player4.result, avr_4, pl.player4.rolls)
 
 
 app = Game()
