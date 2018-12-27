@@ -12,7 +12,7 @@ class Player:
         self.result = ""
         self.rolls = []
         self.ai = False
-        self.tactic = ""
+        self.tactic = Tactic()
 
 
 # definování hráčů

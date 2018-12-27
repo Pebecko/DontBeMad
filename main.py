@@ -10,7 +10,7 @@ from preparation import *
 
 class Game:
     def __init__(self):
-        self.wait_time = 0.01
+        self.wait_time = 0.00
         self.dice_roll = 0
         self.figs1 = []
         self.figs2 = []
@@ -170,7 +170,16 @@ class Game:
             num = self.dice_roll
         new_pos = pos + num
 
-        if new_pos == 1 or new_pos == 41:
+        if pos == 0:
+            if col == "red":
+                new_tile = tile.tile1
+            elif col == "blue":
+                new_tile = tile.tile11
+            elif col == "green":
+                new_tile = tile.tile21
+            else:
+                new_tile = tile.tile31
+        elif new_pos == 1 or new_pos == 41:
             if tile.finish_red1.color != col or not finishing:
                 new_tile = tile.tile1
             else:
@@ -360,7 +369,7 @@ class Game:
 
         return movable, move
 
-    def ai_move_choosing(self, fig1, fig1_movable, fig1_move,
+    def ai_move_choosing(self, side, fig1, fig1_movable, fig1_move,
                          fig2, fig2_movable, fig2_move,
                          fig3, fig3_movable, fig3_move,
                          fig4, fig4_movable, fig4_move):
@@ -369,13 +378,71 @@ class Game:
 
         if fig1_movable:
             weight1 = 1
+
+            if not fig1.tile.finish and not fig1.tile.position == 0:
+                target = fig1.start.position
+                if fig1.tile.position >= target:
+                    target += 40
+                finnish_distance = target - fig1.tile.position
+                weight1 += (10 * side.tactic.finnish_distance / finnish_distance)
+                print(finnish_distance, "1 k cíli")
+
+            if fig1.tile.position == 0:
+                weight1 += 10 * side.tactic.deploy
+
+            if fig1.tile.finish:
+                weight1 *= 0.1
+
         if fig2_movable:
             weight2 = 1
+
+            if not fig2.tile.finish and not fig2.tile.position == 0:
+                target = fig2.start.position
+                if fig2.tile.position >= target:
+                    target += 40
+                finnish_distance = target - fig2.tile.position
+                weight2 += (10 * side.tactic.finnish_distance / finnish_distance)
+                print(finnish_distance, "2 k cíli")
+
+            if fig2.tile.position == 0:
+                weight2 += 10 * side.tactic.deploy
+
+            if fig2.tile.finish:
+                weight2 *= 0.1
+
         if fig3_movable:
             weight3 = 1
+
+            if not fig3.tile.finish and not fig3.tile.position == 0:
+                target = fig3.start.position
+                if fig3.tile.position >= target:
+                    target += 40
+                finnish_distance = target - fig3.tile.position
+                weight3 += (10 * side.tactic.finnish_distance / finnish_distance)
+                print(finnish_distance, "3 k cíli")
+
+            if fig3.tile.position == 0:
+                weight3 += 10 * side.tactic.deploy
+
+            if fig3.tile.finish:
+                weight3 *= 0.1
+
         if fig4_movable:
             weight4 = 1
 
+            if not fig4.tile.finish and not fig4.tile.position == 0:
+                target = fig4.start.position
+                if fig4.tile.position >= target:
+                    target += 40
+                finnish_distance = target - fig4.tile.position
+                weight4 += (10 * side.tactic.finnish_distance / finnish_distance)
+                print(finnish_distance, "4 k cíli")
+
+            if fig4.tile.position == 0:
+                weight4 += 10 * side.tactic.deploy
+
+            if fig4.tile.finish:
+                weight4 *= 0.1
 
         if weight1 >= weight2 and weight1 >= weight3 and weight1 >= weight4:
             if fig1_move == "deploy":
@@ -400,14 +467,14 @@ class Game:
 
         return
 
-    def string_compilation(self, fig1, fig2, fig3, fig4, ai=False):
+    def string_compilation(self, fig1, fig2, fig3, fig4, side=pl.Player(0)):
         fig1_movable, fig1_move = self.possible_move(fig1)
         fig2_movable, fig2_move = self.possible_move(fig2)
         fig3_movable, fig3_move = self.possible_move(fig3)
         fig4_movable, fig4_move = self.possible_move(fig4)
 
-        if ai:
-            self.ai_move_choosing(fig1, fig1_movable, fig1_move,
+        if side.ai:
+            self.ai_move_choosing(side, fig1, fig1_movable, fig1_move,
                                   fig2, fig2_movable, fig2_move,
                                   fig3, fig3_movable, fig3_move,
                                   fig4, fig4_movable, fig4_move)
@@ -457,7 +524,7 @@ class Game:
         fig3 = side.figures[2]
         fig4 = side.figures[3]
 
-        mov1, mov2, mov3, mov4 = self.string_compilation(fig1, fig2, fig3, fig4, side.ai)
+        mov1, mov2, mov3, mov4 = self.string_compilation(fig1, fig2, fig3, fig4, side)
 
         while (mov1 != "" or mov2 != "" or mov3 != "" or mov4 != "") and side.ai is False:
             print("Padla vám {}.".format(self.dice_roll))
