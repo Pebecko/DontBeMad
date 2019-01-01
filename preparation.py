@@ -3,7 +3,7 @@ import figures as fig
 from tactics import move_nearest, kicker, deployer
 
 
-pl.player1.ai = True
+pl.player1.ai = False
 pl.player1.tactic = move_nearest
 pl.player2.ai = True
 pl.player2.tactic = deployer

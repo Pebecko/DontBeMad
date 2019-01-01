@@ -8,6 +8,8 @@ class Figure:
         self.start = start
         self.color = color
         self.home = tile
+        self.movable = False
+        self.move = ""
 
 
 # definování figurek
