@@ -6,7 +6,6 @@ from preparation import player_number
 from tactics import move_nearest, kicker, deployer
 
 
-# TODO - Side selection caring for four players finishing
 # TODO - AI tactics upgrade
 
 
@@ -56,15 +55,20 @@ class Game:
                 else:
                     player.undeployed = True
                     print("Hráč {} nemá žádnou nasazenou figurku.\n".format(player.number))
-                self.playing = self.finish_control(player)
+                self.finish_control(player)
 
     # vybírání hrajícího hráče
     def side_selection(self):
         print("========================================")
-        if player4.playing and player4.turns < player3.turns:
+        if player4.playing and ((player4.turns < player3.turns and player3.playing)
+                                or (not player3.playing and player2.playing and player4.turns < player2.turns)
+                                or (not player3.playing and not player2.playing and player1.playing and
+                                player4.turns < player1.turns)):
             print("Hraje hráč 4. -", player4.color)
             self.current_player = player4
-        elif player3.playing and player3.turns < player2.turns:
+        elif player3.playing and ((player3.turns < player2.turns and player2.playing)
+                                  or (not player1.playing and not player2.playing)
+                                  or player3.turns < player1.turns and player1.playing and not player2.playing):
             print("Hraje hráč 3. -", player3.color)
             self.current_player = player3
         elif player2.playing and (player2.turns < player1.turns or not player1.playing):
@@ -392,7 +396,7 @@ class Game:
                     target += 40
                 finnish_distance = target - self.fig1.tile.position
                 weight1 += (10 * self.current_player.tactic.finnish_distance / finnish_distance)
-                print(finnish_distance, "1 k cíli")
+                # print(finnish_distance, "1 k cíli")
 
             if self.fig1.tile.position == 0:
                 weight1 += 10 * self.current_player.tactic.deploy
@@ -409,7 +413,7 @@ class Game:
                     target += 40
                 finnish_distance = target - self.fig2.tile.position
                 weight2 += (10 * self.current_player.tactic.finnish_distance / finnish_distance)
-                print(finnish_distance, "2 k cíli")
+                # print(finnish_distance, "2 k cíli")
 
             if self.fig2.tile.position == 0:
                 weight2 += 10 * self.current_player.tactic.deploy
@@ -426,7 +430,7 @@ class Game:
                     target += 40
                 finnish_distance = target - self.fig3.tile.position
                 weight3 += (10 * self.current_player.tactic.finnish_distance / finnish_distance)
-                print(finnish_distance, "3 k cíli")
+                # print(finnish_distance, "3 k cíli")
 
             if self.fig3.tile.position == 0:
                 weight3 += 10 * self.current_player.tactic.deploy
@@ -443,7 +447,7 @@ class Game:
                     target += 40
                 finnish_distance = target - self.fig4.tile.position
                 weight4 += (10 * self.current_player.tactic.finnish_distance / finnish_distance)
-                print(finnish_distance, "4 k cíli")
+                # print(finnish_distance, "4 k cíli")
 
             if self.fig4.tile.position == 0:
                 weight4 += 10 * self.current_player.tactic.deploy
@@ -517,7 +521,7 @@ class Game:
     def finish_control(self, player):
         for figure in player.figures:
             if figure.tile.finish is not True:
-                return True
+                return
         # všechny figurky jsou v cíli
         else:
             self.player_placing(player)
@@ -604,6 +608,7 @@ class Game:
     # restartování hry
     def restarting(self, repeat=False):
         self.playing = True
+        self.repeating = False
 
         if repeat:
             self.repeating = True
@@ -623,6 +628,11 @@ class Game:
         player2.rolls = []
         player3.rolls = []
         player4.rolls = []
+
+        player1.result = ""
+        player2.result = ""
+        player3.result = ""
+        player4.result = ""
 
         red_fig1.tile = tile.home_red
         red_fig2.tile = tile.home_red
