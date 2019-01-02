@@ -1,14 +1,5 @@
 import player as pl
 import figures as fig
-from tactics import move_nearest, kicker, deployer
-
-
-pl.player1.ai = False
-pl.player1.tactic = move_nearest
-pl.player2.ai = True
-pl.player2.tactic = deployer
-pl.player3.ai = True
-pl.player4.ai = True
 
 
 def first_player():

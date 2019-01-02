@@ -3,17 +3,28 @@ import time
 from player import player1, player2, player3, player4, Player
 from figures import *
 from preparation import player_number
+from tactics import move_nearest, kicker, deployer
+
 
 # TODO - Side selection caring for four players finishing
 # TODO - AI tactics upgrade
-# TODO - Saving results to different file
+
+
+# nastavení UI
+player1.ai = True
+player2.ai = True
+player3.ai = True
+player4.ai = True
+player1.tactic = move_nearest
+player2.tactic = deployer
 
 
 class Game:
     def __init__(self):
-        self.wait_time = 0
-        self.playing = True
+        self.wait_time = 0  # čas, který hra čeká po každém tahu
         self.dice_roll = 0
+        self.playing = True
+        self.repeating = False  # pokud má hra opakovat vše se stejným nastavením
 
         self.fig1 = None
         self.fig2 = None
@@ -68,9 +79,10 @@ class Game:
             return self.side_selection()
 
     def main(self):
-        player_number()
+        if not self.repeating:
+            player_number()
 
-        print("Mínus [-] před pozicí figurky znamená, že je v domečku.")
+            print("Mínus [-] před pozicí figurky znamená, že je v domečku.")
 
         # herní smyčka
         while self.playing:
@@ -542,6 +554,7 @@ class Game:
         if not last:
             return self.checking_last()
 
+    # vypisování a ukládání výsledků
     def results(self):
         avr_1, avr_2, avr_3, avr_4 = 0, 0, 0, 0
         for num in player1.rolls:
@@ -568,8 +581,67 @@ class Game:
             if len(player4.rolls) != 0:
                 avr_4 /= len(player4.rolls)
 
-        print(player1.result, avr_1, player1.rolls, "\n", player2.result, avr_2, player2.rolls, "\n",
-              player3.result, avr_3, player3.rolls, "\n", player4.result, avr_4, player4.rolls)
+        result = "{} - {} {} {}\n{} - {} {} {}\n{} - {} {} {}\n{} - {} {} {}" \
+                 "\r\n".format(player1.result, player1.color, avr_1, player1.rolls,
+                               player2.result, player2.color, avr_2, player2.rolls,
+                               player3.result, player3.color, avr_3, player3.rolls,
+                               player4.result, player4.color, avr_4, player4.rolls)
+
+        print(result)
+
+        # ukládání výsledků do souboru
+        f = open("results.txt", "a+")
+        f.write(str(result))
+        f.close()
+
+        option = input("\nZmáčkněte enter pro konec, nebo [s] pro obnovení hry a znovunastavení hráčů, nebo [r] pro"
+                       " restartování s dosavadním nastavením.\n")
+        if option == "s":
+            self.restarting()
+        elif option == "r":
+            self.restarting(True)
+
+    # restartování hry
+    def restarting(self, repeat=False):
+        self.playing = True
+
+        if repeat:
+            self.repeating = True
+            player1.playing = True
+            player2.playing = True
+            if player3.color != "":
+                player3.playing = True
+            if player4.color != "":
+                player4.playing = True
+
+        player1.turns = 0
+        player2.turns = 0
+        player3.turns = 0
+        player4.turns = 0
+
+        player1.rolls = []
+        player2.rolls = []
+        player3.rolls = []
+        player4.rolls = []
+
+        red_fig1.tile = tile.home_red
+        red_fig2.tile = tile.home_red
+        red_fig3.tile = tile.home_red
+        red_fig4.tile = tile.home_red
+        blue_fig1.tile = tile.home_blue
+        blue_fig2.tile = tile.home_blue
+        blue_fig3.tile = tile.home_blue
+        blue_fig4.tile = tile.home_blue
+        green_fig1 .tile = tile.home_green
+        green_fig2 .tile = tile.home_green
+        green_fig3 .tile = tile.home_green
+        green_fig4 .tile = tile.home_green
+        yellow_fig1.tile = tile.home_yellow
+        yellow_fig2.tile = tile.home_yellow
+        yellow_fig3.tile = tile.home_yellow
+        yellow_fig4.tile = tile.home_yellow
+
+        return self.main()
 
 
 app = Game()
