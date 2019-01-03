@@ -10,6 +10,7 @@ class Figure:
         self.home = tile
         self.movable = False
         self.move = ""
+        self.weight = 0
 
 
 # definování figurek

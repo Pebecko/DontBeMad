@@ -6,9 +6,6 @@ from preparation import player_number
 from tactics import move_nearest, kicker, deployer
 
 
-# TODO - AI tactics upgrade
-
-
 # nastavení UI
 player1.ai = True
 player2.ai = True
@@ -16,6 +13,7 @@ player3.ai = True
 player4.ai = True
 player1.tactic = move_nearest
 player2.tactic = deployer
+player3.tactic = kicker
 
 
 class Game:
@@ -384,82 +382,54 @@ class Game:
 
     # ui si vybírá tah
     def ai_move_choosing(self):
+        for figure in self.current_player.figures:
+            # figurka může hrát
+            if figure.movable:
+                figure.weight = 1
 
-        weight1, weight2, weight3, weight4 = 0, 0, 0, 0
+                # figurka je v domečku
+                if figure.tile.position == 0:
+                    figure.weight += 10 * self.current_player.tactic.deploy
 
-        if self.fig1.movable:
-            weight1 = 1
+                # figurka je v cíli
+                elif figure.tile.finish:
+                    figure.weight *= 0.1
 
-            if not self.fig1.tile.finish and not self.fig1.tile.position == 0:
-                target = self.fig1.start.position
-                if self.fig1.tile.position >= target:
-                    target += 40
-                finnish_distance = target - self.fig1.tile.position
-                weight1 += (10 * self.current_player.tactic.finnish_distance / finnish_distance)
-                # print(finnish_distance, "1 k cíli")
+                # figurka je v herním poli
+                else:
+                    # zjišťování jak daleko je figurka od cíle
+                    target = figure.start.position
+                    if figure.tile.position >= target:
+                        target += 40
+                    finnish_distance = target - figure.tile.position
+                    if finnish_distance != 0:
+                        figure.weight += (200 * (self.current_player.tactic.finnish_distance / finnish_distance))
 
-            if self.fig1.tile.position == 0:
-                weight1 += 10 * self.current_player.tactic.deploy
+                    # zjišťování zda figurka neblokuje startovací políčko
+                    if figure.tile.position == figure.start.position and figure.tile.color == figure.start.color:
+                        figure.weight += 10 * self.current_player.tactic.clearing_start
 
-            if self.fig1.tile.finish:
-                weight1 *= 0.1
+                # zjišťování zda figurka nemůže vyhodit jinou figurku svým tahem
+                new_tile = self.new_coordinates(figure.tile.position, figure.color, figure.tile.finishing)
+                for player in self.players:
+                    for fig in player.figures:
+                        if new_tile.color == fig.tile.color and new_tile.position == fig.tile.position:
+                            figure.weight += 10 * self.current_player.tactic.kicking_out
 
-        if self.fig2.movable:
-            weight2 = 1
+            else:
+                figure.weight = 0
 
-            if not self.fig2.tile.finish and not self.fig2.tile.position == 0:
-                target = self.fig2.start.position
-                if self.fig2.tile.position >= target:
-                    target += 40
-                finnish_distance = target - self.fig2.tile.position
-                weight2 += (10 * self.current_player.tactic.finnish_distance / finnish_distance)
-                # print(finnish_distance, "2 k cíli")
+            # debug
+            print(figure.weight)
 
-            if self.fig2.tile.position == 0:
-                weight2 += 10 * self.current_player.tactic.deploy
-
-            if self.fig2.tile.finish:
-                weight2 *= 0.1
-
-        if self.fig3.movable:
-            weight3 = 1
-
-            if not self.fig3.tile.finish and not self.fig3.tile.position == 0:
-                target = self.fig3.start.position
-                if self.fig3.tile.position >= target:
-                    target += 40
-                finnish_distance = target - self.fig3.tile.position
-                weight3 += (10 * self.current_player.tactic.finnish_distance / finnish_distance)
-                # print(finnish_distance, "3 k cíli")
-
-            if self.fig3.tile.position == 0:
-                weight3 += 10 * self.current_player.tactic.deploy
-
-            if self.fig3.tile.finish:
-                weight3 *= 0.1
-
-        if self.fig4.movable:
-            weight4 = 1
-
-            if not self.fig4.tile.finish and not self.fig4.tile.position == 0:
-                target = self.fig4.start.position
-                if self.fig4.tile.position >= target:
-                    target += 40
-                finnish_distance = target - self.fig4.tile.position
-                weight4 += (10 * self.current_player.tactic.finnish_distance / finnish_distance)
-                # print(finnish_distance, "4 k cíli")
-
-            if self.fig4.tile.position == 0:
-                weight4 += 10 * self.current_player.tactic.deploy
-
-            if self.fig4.tile.finish:
-                weight4 *= 0.1
-
-        if weight1 >= weight2 and weight1 >= weight3 and weight1 >= weight4:
+        if self.fig1.weight >= self.fig2.weight and self.fig1.weight >= self.fig3.weight \
+                and self.fig1.weight >= self.fig4.weight:
             self.current_fig = self.fig1
-        elif weight2 >= weight1 and weight2 >= weight3 and weight2 >= weight4:
+        elif self.fig2.weight >= self.fig1.weight and self.fig2.weight >= self.fig3.weight \
+                and self.fig2.weight >= self.fig4.weight:
             self.current_fig = self.fig2
-        elif weight3 >= weight1 and weight3 >= weight2 and weight3 >= weight4:
+        elif self.fig3.weight >= self.fig1.weight and self.fig3.weight >= self.fig2.weight \
+                and self.fig3.weight >= self.fig4.weight:
             self.current_fig = self.fig3
         else:
             self.current_fig = self.fig4
