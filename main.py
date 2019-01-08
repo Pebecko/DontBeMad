@@ -7,7 +7,7 @@ from tactics import move_nearest, kicker, deployer
 
 
 # nastavení UI
-player1.ai = True
+player1.ai = False
 player2.ai = True
 player3.ai = True
 player4.ai = True
@@ -16,9 +16,14 @@ player2.tactic = deployer
 player3.tactic = kicker
 
 
+# TODO - better AI
+
+
 class Game:
     def __init__(self):
-        self.wait_time = 0  # čas, který hra čeká po každém tahu
+        self.no_moving_while_dep = False  # pravidlo pro posouvání figurek když můžete nasadit
+
+        self.wait_time = 1  # čas, který hra čeká po každém tahu
         self.dice_roll = 0
         self.playing = True
         self.repeating = False  # pokud má hra opakovat vše se stejným nastavením
@@ -331,8 +336,17 @@ class Game:
             elif self.block_checking(new_tile):
                 figure.move = "blocked"
             else:
-                figure.movable = True
-                figure.move = "reposition"
+                if self.dice_roll == 6 and self.no_moving_while_dep:
+                    for figure in self.current_player.figures:
+                        if figure.tile.position == 0:
+                            figure.move = "illegal"
+                            break
+                    else:
+                        figure.movable = True
+                        figure.move = "reposition"
+                else:
+                    figure.movable = True
+                    figure.move = "reposition"
 
         return
 
