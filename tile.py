@@ -71,6 +71,7 @@ tile38 = Tile(38)
 tile39 = Tile(39)
 tile40 = Tile(40)
 
+#Proc ?
 tile1.finishing = False
 tile2.finishing = False
 tile3.finishing = False

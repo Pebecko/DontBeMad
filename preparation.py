@@ -62,7 +62,7 @@ def two_players():
         else:
             print("Zadaný vstup nesouhlasí s možnostmi.\n")
 
-
+# Proc?
 def three_players():
     pl.player1.playing = True
     pl.player2.playing = True

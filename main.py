@@ -28,6 +28,7 @@ class Game:
         self.playing = True
         self.repeating = False  # pokud má hra opakovat vše se stejným nastavením
 
+        #Proc to neni v poli?
         self.fig1 = None
         self.fig2 = None
         self.fig3 = None
@@ -49,6 +50,12 @@ class Game:
                         figs.append(figure.tile.position)
                     else:
                         figs.append(-figure.tile.position)
+
+                    #Proc by to neslo takhle?
+                    # if fig.tile.position != 0:
+                    #     print("Figurky hráče {} jsou na políčkách:".format(player.number), figs[0], figs[1], figs[2],
+                    #           figs[3], "\n")
+                    #     player.undeployed = False    
                 for fig in player.figures:
                     if fig.tile.position != 0:
                         print("Figurky hráče {} jsou na políčkách:".format(player.number), figs[0], figs[1], figs[2],
@@ -140,6 +147,7 @@ class Game:
         return self.figure_kicking()
 
     # zjišťování nové pozice
+    #Proc proste jen new_title = Tile(new_pos)
     def new_coordinates(self, pos, col, finishing, num=0):
         if num == 0:
             num = self.dice_roll
@@ -358,7 +366,8 @@ class Game:
         if self.current_player.ai:
             self.ai_move_choosing()
 
-        mov1, mov2, mov3, mov4 = "", "", "", ""
+        # moves = [] Proc zase pole
+        mov1, mov2, mov3, mov4 = "", "", "", "" #Proc by nestacilo jen mov1, mov2, mov3, mov4 = "",?
 
         if self.fig1.movable:
             mov1 = ", "
@@ -544,7 +553,7 @@ class Game:
 
     # vypisování a ukládání výsledků
     def results(self):
-        avr_1, avr_2, avr_3, avr_4 = 0, 0, 0, 0
+        avr_1, avr_2, avr_3, avr_4 = 0, 0, 0, 0 #Proc pole
         for num in player1.rolls:
             avr_1 += num
         else:
