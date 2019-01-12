@@ -7,7 +7,7 @@ from tactics import move_nearest, kicker, deployer
 
 
 # nastavení UI
-player1.ai = False
+player1.ai = True
 player2.ai = True
 player3.ai = True
 player4.ai = True
@@ -23,7 +23,7 @@ class Game:
     def __init__(self):
         self.no_moving_while_dep = False  # pravidlo pro posouvání figurek když můžete nasadit
 
-        self.wait_time = 1  # čas, který hra čeká po každém tahu
+        self.wait_time = 0  # čas, který hra čeká po každém tahu
         self.dice_roll = 0
         self.playing = True
         self.repeating = False  # pokud má hra opakovat vše se stejným nastavením
@@ -55,7 +55,7 @@ class Game:
                     # if fig.tile.position != 0:
                     #     print("Figurky hráče {} jsou na políčkách:".format(player.number), figs[0], figs[1], figs[2],
                     #           figs[3], "\n")
-                    #     player.undeployed = False    
+                    #     player.undeployed = False
                 for fig in player.figures:
                     if fig.tile.position != 0:
                         print("Figurky hráče {} jsou na políčkách:".format(player.number), figs[0], figs[1], figs[2],
@@ -69,6 +69,7 @@ class Game:
 
     # vybírání hrajícího hráče
     def side_selection(self):
+        # TODO - rework player choosing
         print("========================================")
         if player4.playing and ((player4.turns < player3.turns and player3.playing)
                                 or (not player3.playing and player2.playing and player4.turns < player2.turns)
@@ -155,141 +156,99 @@ class Game:
 
         if pos == 0:
             if col == "red":
-                new_tile = tile.tile1
+                new_tile = Tile(1, finishing=False)
             elif col == "blue":
-                new_tile = tile.tile11
+                new_tile = Tile(11, finishing=False)
             elif col == "green":
-                new_tile = tile.tile21
+                new_tile = Tile(21, finishing=False)
             else:
-                new_tile = tile.tile31
+                new_tile = Tile(31, finishing=False)
         elif new_pos == 1 or new_pos == 41:
-            if tile.finish_red1.color != col or not finishing:
-                new_tile = tile.tile1
+            if finish_red1.color != col or not finishing:
+                new_tile = Tile(1, finishing=False)
             else:
-                new_tile = tile.finish_red1
+                new_tile = finish_red1
         elif new_pos == 2 or new_pos == 42:
-            if tile.finish_red1.color != col or not finishing:
-                new_tile = tile.tile2
+            if finish_red1.color != col or not finishing:
+                new_tile = Tile(2, finishing=False)
             else:
-                new_tile = tile.finish_red2
+                new_tile = finish_red2
         elif new_pos == 3 or new_pos == 43:
-            if tile.finish_red1.color != col or not finishing:
-                new_tile = tile.tile3
+            if finish_red1.color != col or not finishing:
+                new_tile = Tile(3, finishing=False)
             else:
-                new_tile = tile.finish_red3
+                new_tile = finish_red3
         elif new_pos == 4 or new_pos == 44:
-            if tile.finish_red1.color != col or not finishing:
-                new_tile = tile.tile4
+            if finish_red1.color != col or not finishing:
+                new_tile = Tile(4, finishing=False)
             else:
-                new_tile = tile.finish_red4
+                new_tile = finish_red4
         elif new_pos == 5 or new_pos == 45:
-            new_tile = tile.tile5
+            new_tile = Tile(5, finishing=False)
         elif new_pos == 6 or new_pos == 46:
-            new_tile = tile.tile6
-        elif new_pos == 7:
-            new_tile = tile.tile7
-        elif new_pos == 8:
-            new_tile = tile.tile8
-        elif new_pos == 9:
-            new_tile = tile.tile9
-        elif new_pos == 10:
-            new_tile = tile.tile10
+            new_tile = Tile(6, finishing=False)
         elif new_pos == 11:
-            if tile.finish_blue1.color != col or not finishing:
-                new_tile = tile.tile11
+            if finish_blue1.color != col or not finishing:
+                new_tile = Tile(11, finishing=False)
             else:
-                new_tile = tile.finish_blue1
+                new_tile = finish_blue1
         elif new_pos == 12:
-            if tile.finish_blue1.color != col or not finishing:
-                new_tile = tile.tile12
+            if finish_blue1.color != col or not finishing:
+                new_tile = Tile(12, finishing=False)
             else:
-                new_tile = tile.finish_blue2
+                new_tile = finish_blue2
         elif new_pos == 13:
-            if tile.finish_blue1.color != col or not finishing:
-                new_tile = tile.tile13
+            if finish_blue1.color != col or not finishing:
+                new_tile = Tile(13, finishing=False)
             else:
-                new_tile = tile.finish_blue3
+                new_tile = finish_blue3
         elif new_pos == 14:
-            if tile.finish_blue1.color != col or not finishing:
-                new_tile = tile.tile14
+            if finish_blue1.color != col or not finishing:
+                new_tile = Tile(14, finishing=False)
             else:
-                new_tile = tile.finish_blue4
-        elif new_pos == 15:
-            new_tile = tile.tile15
-        elif new_pos == 16:
-            new_tile = tile.tile16
-        elif new_pos == 17:
-            new_tile = tile.tile17
-        elif new_pos == 18:
-            new_tile = tile.tile18
-        elif new_pos == 19:
-            new_tile = tile.tile19
-        elif new_pos == 20:
-            new_tile = tile.tile20
+                new_tile = finish_blue4
         elif new_pos == 21:
-            if tile.finish_green1.color != col or not finishing:
-                new_tile = tile.tile21
+            if finish_green1.color != col or not finishing:
+                new_tile = Tile(21, finishing=False)
             else:
-                new_tile = tile.finish_green1
+                new_tile = finish_green1
         elif new_pos == 22:
-            if tile.finish_green1.color != col or not finishing:
-                new_tile = tile.tile22
+            if finish_green1.color != col or not finishing:
+                new_tile = Tile(22, finishing=False)
             else:
-                new_tile = tile.finish_green2
+                new_tile = finish_green2
         elif new_pos == 23:
-            if tile.finish_green1.color != col or not finishing:
-                new_tile = tile.tile23
+            if finish_green1.color != col or not finishing:
+                new_tile = Tile(23, finishing=False)
             else:
-                new_tile = tile.finish_green3
+                new_tile = finish_green3
         elif new_pos == 24:
-            if tile.finish_green1.color != col or not finishing:
-                new_tile = tile.tile24
+            if finish_green1.color != col or not finishing:
+                new_tile = Tile(24, finishing=False)
             else:
-                new_tile = tile.finish_green4
-        elif new_pos == 25:
-            new_tile = tile.tile25
-        elif new_pos == 26:
-            new_tile = tile.tile26
-        elif new_pos == 27:
-            new_tile = tile.tile27
-        elif new_pos == 28:
-            new_tile = tile.tile28
-        elif new_pos == 29:
-            new_tile = tile.tile29
-        elif new_pos == 30:
-            new_tile = tile.tile30
+                new_tile = finish_green4
         elif new_pos == 31:
-            if tile.finish_yellow1.color != col or not finishing:
-                new_tile = tile.tile31
+            if finish_yellow1.color != col or not finishing:
+                new_tile = Tile(31, finishing=False)
             else:
-                new_tile = tile.finish_yellow1
+                new_tile = finish_yellow1
         elif new_pos == 32:
-            if tile.finish_yellow1.color != col or not finishing:
-                new_tile = tile.tile32
+            if finish_yellow1.color != col or not finishing:
+                new_tile = Tile(32, finishing=False)
             else:
-                new_tile = tile.finish_yellow2
+                new_tile = finish_yellow2
         elif new_pos == 33:
-            if tile.finish_yellow1.color != col or not finishing:
-                new_tile = tile.tile33
+            if finish_yellow1.color != col or not finishing:
+                new_tile = Tile(33, finishing=False)
             else:
-                new_tile = tile.finish_yellow3
+                new_tile = finish_yellow3
         elif new_pos == 34:
-            if tile.finish_yellow1.color != col or not finishing:
-                new_tile = tile.tile34
+            if finish_yellow1.color != col or not finishing:
+                new_tile = Tile(34, finishing=False)
             else:
-                new_tile = tile.finish_yellow4
-        elif new_pos == 35:
-            new_tile = tile.tile35
-        elif new_pos == 36:
-            new_tile = tile.tile36
-        elif new_pos == 37:
-            new_tile = tile.tile37
-        elif new_pos == 38:
-            new_tile = tile.tile38
-        elif new_pos == 39:
-            new_tile = tile.tile39
+                new_tile = finish_yellow4
         else:
-            new_tile = tile.tile40
+            new_tile = Tile(new_pos)
 
         return new_tile
 
@@ -299,13 +258,13 @@ class Game:
             print("Padla vám 6.")
         else:
             print("Padla vám " + str(self.dice_roll) + ", nemůžete nasadit ale máte ještě dvě šance.")
-            for i in range(0, 2):
+            for j in range(0, 2):
                 self.dice_roll = random.randint(1, 6)
                 self.current_player.rolls.append(self.dice_roll)
                 if self.dice_roll == 6:
                     print("Padla vám 6.")
                     break
-                else:
+                elif j == 0:
                     print("Padla vám", self.dice_roll)
             else:
                 return
@@ -345,9 +304,9 @@ class Game:
                 figure.move = "blocked"
             else:
                 if self.dice_roll == 6 and self.no_moving_while_dep:
-                    for figure in self.current_player.figures:
-                        if figure.tile.position == 0:
-                            figure.move = "illegal"
+                    for fig in self.current_player.figures:
+                        if fig.tile.position == 0:
+                            fig.move = "illegal"
                             break
                     else:
                         figure.movable = True
@@ -553,43 +512,25 @@ class Game:
 
     # vypisování a ukládání výsledků
     def results(self):
-        avr_1, avr_2, avr_3, avr_4 = 0, 0, 0, 0 #Proc pole
-        for num in player1.rolls:
-            avr_1 += num
-        else:
-            if len(player1.rolls) != 0:
-                avr_1 /= len(player1.rolls)
+        message = ""
+        for player in self.players:
+            if player.result != "":
+                avr = 0
+                for num in player.rolls:
+                    avr += num
+                else:
+                    if len(player.rolls) != 0:
+                        avr /= len(player.rolls)
+                message += player.result + " - " + player.color + " " + str(avr) + " " + str(player.rolls) + "\n"
 
-        for num in player2.rolls:
-            avr_2 += num
-        else:
-            if len(player2.rolls) != 0:
-                avr_2 /= len(player2.rolls)
+        message += "\r\n"
 
-        for num in player3.rolls:
-            avr_3 += num
-        else:
-            if len(player3.rolls) != 0:
-                avr_3 /= len(player3.rolls)
-
-        for num in player4.rolls:
-            avr_4 += num
-        else:
-            if len(player4.rolls) != 0:
-                avr_4 /= len(player4.rolls)
-
-        result = "{} - {} {} {}\n{} - {} {} {}\n{} - {} {} {}\n{} - {} {} {}" \
-                 "\r\n".format(player1.result, player1.color, avr_1, player1.rolls,
-                               player2.result, player2.color, avr_2, player2.rolls,
-                               player3.result, player3.color, avr_3, player3.rolls,
-                               player4.result, player4.color, avr_4, player4.rolls)
-
-        print(result)
+        print(message)
 
         # ukládání výsledků do souboru
-        f = open("results.txt", "a+")
-        f.write(str(result))
-        f.close()
+        file = open("results.txt", "a+")
+        file.write(str(message))
+        file.close()
 
         option = input("\nZmáčkněte enter pro konec, nebo [s] pro obnovení hry a znovunastavení hráčů, nebo [r] pro"
                        " restartování s dosavadním nastavením.\n")
@@ -612,37 +553,12 @@ class Game:
             if player4.color != "":
                 player4.playing = True
 
-        player1.turns = 0
-        player2.turns = 0
-        player3.turns = 0
-        player4.turns = 0
-
-        player1.rolls = []
-        player2.rolls = []
-        player3.rolls = []
-        player4.rolls = []
-
-        player1.result = ""
-        player2.result = ""
-        player3.result = ""
-        player4.result = ""
-
-        red_fig1.tile = tile.home_red
-        red_fig2.tile = tile.home_red
-        red_fig3.tile = tile.home_red
-        red_fig4.tile = tile.home_red
-        blue_fig1.tile = tile.home_blue
-        blue_fig2.tile = tile.home_blue
-        blue_fig3.tile = tile.home_blue
-        blue_fig4.tile = tile.home_blue
-        green_fig1 .tile = tile.home_green
-        green_fig2 .tile = tile.home_green
-        green_fig3 .tile = tile.home_green
-        green_fig4 .tile = tile.home_green
-        yellow_fig1.tile = tile.home_yellow
-        yellow_fig2.tile = tile.home_yellow
-        yellow_fig3.tile = tile.home_yellow
-        yellow_fig4.tile = tile.home_yellow
+        for player in self.players:
+            player.turns = 0
+            player.rolls = []
+            player.result = ""
+            for figure in player.figures:
+                figure.tile = figure.home
 
         return self.main()
 
