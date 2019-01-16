@@ -154,6 +154,8 @@ class Game:
             num = self.dice_roll
         new_pos = pos + num
 
+        # return tile.all[new_pos-1] Proc
+        
         if pos == 0:
             if col == "red":
                 new_tile = Tile(1, finishing=False)
