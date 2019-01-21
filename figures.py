@@ -13,6 +13,7 @@ class Figure:
         self.home = tile
         self.movable = False
         self.move = ""
+        self.move_mess = ""
         self.weight = 0
 
 
@@ -22,7 +23,7 @@ blue_figures = []
 green_figures = []
 yellow_figures = []
 for i in range(1, 5):
-    red_figures.append(Figure(i, home_red, tile1, "red"))
-    blue_figures.append(Figure(i, home_blue, tile11, "blue"))
-    green_figures.append(Figure(i, home_green, tile21, "green"))
-    yellow_figures.append(Figure(i, home_yellow, tile31, "yellow"))
+    red_figures.append(Figure(i, home_red, Tile(1, finishing=False), "red"))
+    blue_figures.append(Figure(i, home_blue, Tile(11, finishing=False), "blue"))
+    green_figures.append(Figure(i, home_green, Tile(21, finishing=False), "green"))
+    yellow_figures.append(Figure(i, home_yellow, Tile(31, finishing=False), "yellow"))

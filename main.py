@@ -3,7 +3,7 @@ import time
 from player import player1, player2, player3, player4, Player
 from figures import *
 from preparation import player_number
-from tactics import move_nearest, kicker, deployer
+from tactics import move_nearest, kicker, deployer, running_away
 
 
 # nastavení UI
@@ -12,11 +12,12 @@ player2.ai = True
 player3.ai = True
 player4.ai = True
 player1.tactic = move_nearest
-player2.tactic = deployer
+player2.tactic = running_away
 player3.tactic = kicker
+player4.tactic = deployer
 
 
-# TODO - better AI
+# TODO - rework new coordinates
 
 
 class Game:
@@ -25,14 +26,10 @@ class Game:
 
         self.wait_time = 0  # čas, který hra čeká po každém tahu
         self.dice_roll = 0
+        self.player_index = 0
         self.playing = True
         self.repeating = False  # pokud má hra opakovat vše se stejným nastavením
 
-        #Proc to neni v poli?
-        self.fig1 = None
-        self.fig2 = None
-        self.fig3 = None
-        self.fig4 = None
         self.current_fig = None
 
         self.players = [player1, player2, player3, player4]
@@ -51,11 +48,6 @@ class Game:
                     else:
                         figs.append(-figure.tile.position)
 
-                    #Proc by to neslo takhle?
-                    # if fig.tile.position != 0:
-                    #     print("Figurky hráče {} jsou na políčkách:".format(player.number), figs[0], figs[1], figs[2],
-                    #           figs[3], "\n")
-                    #     player.undeployed = False
                 for fig in player.figures:
                     if fig.tile.position != 0:
                         print("Figurky hráče {} jsou na políčkách:".format(player.number), figs[0], figs[1], figs[2],
@@ -69,29 +61,18 @@ class Game:
 
     # vybírání hrajícího hráče
     def side_selection(self):
-        # TODO - rework player choosing
-        print("========================================")
-        if player4.playing and ((player4.turns < player3.turns and player3.playing)
-                                or (not player3.playing and player2.playing and player4.turns < player2.turns)
-                                or (not player3.playing and not player2.playing and player1.playing and
-                                player4.turns < player1.turns)):
-            print("Hraje hráč 4. -", player4.color)
-            self.current_player = player4
-        elif player3.playing and ((player3.turns < player2.turns and player2.playing)
-                                  or (not player1.playing and not player2.playing)
-                                  or player3.turns < player1.turns and player1.playing and not player2.playing):
-            print("Hraje hráč 3. -", player3.color)
-            self.current_player = player3
-        elif player2.playing and (player2.turns < player1.turns or not player1.playing):
-            print("Hraje hráč 2. -", player2.color)
-            self.current_player = player2
-        elif player1.playing:
-            print("Hraje hráč 1. -", player1.color)
-            self.current_player = player1
-        else:
-            # pojistka pro případ, že by jeden hráč dohrál dřív
-            player1.turns, player2.turns, player3.turns, player4.turns = 0, 0, 0, 0
+        self.current_player = self.players[self.player_index]
+
+        self.player_index += 1
+
+        if self.player_index == len(self.players):
+            self.player_index = 0
+
+        if not self.current_player.playing:
             return self.side_selection()
+
+        print("========================================")
+        print("Hraje hráč {}. - {}".format(self.current_player.number, self.current_player.color))
 
     def main(self):
         if not self.repeating:
@@ -122,13 +103,13 @@ class Game:
     # vyhazování figurek
     def figure_kicking(self):
         for player in self.players:
-            for figure in player.figures:
-                if figure.tile.position == self.current_fig.tile.position and (figure.tile.color ==
-                                                                               self.current_fig.tile.color and
-                                                                               figure.color != self.current_fig.color):
-                    figure.tile = figure.home
-                    print("Figurka {}, hráče {} - {}, byla vyhozena."
-                          "".format(figure.number, player.number, figure.color))
+            if player.playing:
+                for figure in player.figures:
+                    if figure.tile.position == self.current_fig.tile.position and \
+                            figure.tile.color == self.current_fig.tile.color and figure.color != self.current_fig.color:
+                        figure.tile = figure.home
+                        print("Figurka {}, hráče {} - {}, byla vyhozena."
+                              "".format(figure.number, player.number, figure.color))
 
     # nasazování figurky
     def deploying(self):
@@ -148,14 +129,14 @@ class Game:
         return self.figure_kicking()
 
     # zjišťování nové pozice
-    #Proc proste jen new_title = Tile(new_pos)
     def new_coordinates(self, pos, col, finishing, num=0):
         if num == 0:
             num = self.dice_roll
         new_pos = pos + num
 
-        # return tile.all[new_pos-1] Proc
-        
+        if new_pos < 1 and num < 1:
+            new_pos -= 1
+
         if pos == 0:
             if col == "red":
                 new_tile = Tile(1, finishing=False)
@@ -165,29 +146,29 @@ class Game:
                 new_tile = Tile(21, finishing=False)
             else:
                 new_tile = Tile(31, finishing=False)
-        elif new_pos == 1 or new_pos == 41:
+        elif new_pos == 1 or new_pos == 41or new_pos == -1:
             if finish_red1.color != col or not finishing:
                 new_tile = Tile(1, finishing=False)
             else:
                 new_tile = finish_red1
-        elif new_pos == 2 or new_pos == 42:
+        elif new_pos == 2 or new_pos == 42 or new_pos == -2:
             if finish_red1.color != col or not finishing:
                 new_tile = Tile(2, finishing=False)
             else:
                 new_tile = finish_red2
-        elif new_pos == 3 or new_pos == 43:
+        elif new_pos == 3 or new_pos == 43 or new_pos == -3:
             if finish_red1.color != col or not finishing:
                 new_tile = Tile(3, finishing=False)
             else:
                 new_tile = finish_red3
-        elif new_pos == 4 or new_pos == 44:
+        elif new_pos == 4 or new_pos == 44 or new_pos == -4:
             if finish_red1.color != col or not finishing:
                 new_tile = Tile(4, finishing=False)
             else:
                 new_tile = finish_red4
-        elif new_pos == 5 or new_pos == 45:
+        elif new_pos == 5 or new_pos == 45 or new_pos == -5:
             new_tile = Tile(5, finishing=False)
-        elif new_pos == 6 or new_pos == 46:
+        elif new_pos == 6 or new_pos == 46 or new_pos == -6:
             new_tile = Tile(6, finishing=False)
         elif new_pos == 11:
             if finish_blue1.color != col or not finishing:
@@ -266,7 +247,7 @@ class Game:
                 if self.dice_roll == 6:
                     print("Padla vám 6.")
                     break
-                elif j == 0:
+                else:
                     print("Padla vám", self.dice_roll)
             else:
                 return
@@ -327,42 +308,16 @@ class Game:
         if self.current_player.ai:
             self.ai_move_choosing()
 
-        # moves = [] Proc zase pole
-        mov1, mov2, mov3, mov4 = "", "", "", "" #Proc by nestacilo jen mov1, mov2, mov3, mov4 = "",?
-
-        if self.fig1.movable:
-            mov1 = ", "
-            if self.fig1.move == "deploy":
-                mov1 += "nasadit"
+        for figure in self.current_player.figures:
+            if figure.movable:
+                figure.move_mess = ", "
+                if figure.move == "deploy":
+                    figure.move_mess += "nasadit"
+                else:
+                    figure.move_mess += "poposunout"
+                figure.move_mess += " figurku [{}]".format(figure.number)
             else:
-                mov1 += "poposunout"
-            mov1 += " figurku [1]"
-
-        if self.fig2.movable:
-            mov2 = ", "
-            if self.fig2.move == "deploy":
-                mov2 += "nasadit"
-            else:
-                mov2 += "poposunout"
-            mov2 += " figurku [2]"
-
-        if self.fig3.movable:
-            mov3 = ", "
-            if self.fig3.move == "deploy":
-                mov3 += "nasadit"
-            else:
-                mov3 += "poposunout"
-            mov3 += " figurku [3]"
-
-        if self.fig4.movable:
-            mov4 = ", "
-            if self.fig4.move == "deploy":
-                mov4 += "nasadit"
-            else:
-                mov4 += "poposunout"
-            mov4 += " figurku [4]"
-
-        return mov1, mov2, mov3, mov4
+                figure.move_mess = ""
 
     # ui si vybírá tah
     def ai_move_choosing(self):
@@ -387,18 +342,36 @@ class Game:
                         target += 40
                     finnish_distance = target - figure.tile.position
                     if finnish_distance != 0:
-                        figure.weight += (200 * (self.current_player.tactic.finnish_distance / finnish_distance))
+                        figure.weight += round(self.current_player.tactic.finnish_distance / finnish_distance * 200, 2)
 
-                    # zjišťování zda figurka neblokuje startovací políčko
+                    # zjišťování zda figurka neblokuje své startovací políčko
                     if figure.tile.position == figure.start.position and figure.tile.color == figure.start.color:
                         figure.weight += 10 * self.current_player.tactic.clearing_start
+
+                    # zjišťování, zda figurka nestojí na startovním políčku jiného hrajícího hráče
+                    for pl in self.players:
+                        if pl.playing and pl.number != self.current_player.number:
+                            if figure.tile.position == pl.figures[0].start.position:
+                                figure.weight += 12 * self.current_player.tactic.opponent_start
 
                 # zjišťování zda figurka nemůže vyhodit jinou figurku svým tahem
                 new_tile = self.new_coordinates(figure.tile.position, figure.color, figure.tile.finishing)
                 for player in self.players:
-                    for fig in player.figures:
-                        if new_tile.color == fig.tile.color and new_tile.position == fig.tile.position:
-                            figure.weight += 10 * self.current_player.tactic.kicking_out
+                    if player.playing:
+                        for fig in player.figures:
+                            if new_tile.color == fig.tile.color and new_tile.position == fig.tile.position:
+                                figure.weight += 10 * self.current_player.tactic.kicking_out
+
+                # zjišťování jestli figurka nemůže být vyhozena, když zůstane stát
+                if not figure.tile.finish:
+                    for pos in range(1, 7):
+                        tile_behind = self.new_coordinates(figure.tile.position, figure.color, False, -pos)
+                        for player in self.players:
+                            if player.playing and player.number != self.current_player.number:
+                                for fig in player.figures:
+                                    if fig.tile.position == tile_behind.position and \
+                                            fig.tile.color == tile_behind.color:
+                                        figure.weight += pos * 5 * self.current_player.tactic.running_away
 
             else:
                 figure.weight = 0
@@ -406,17 +379,20 @@ class Game:
             # debug
             print(figure.weight)
 
-        if self.fig1.weight >= self.fig2.weight and self.fig1.weight >= self.fig3.weight \
-                and self.fig1.weight >= self.fig4.weight:
-            self.current_fig = self.fig1
-        elif self.fig2.weight >= self.fig1.weight and self.fig2.weight >= self.fig3.weight \
-                and self.fig2.weight >= self.fig4.weight:
-            self.current_fig = self.fig2
-        elif self.fig3.weight >= self.fig1.weight and self.fig3.weight >= self.fig2.weight \
-                and self.fig3.weight >= self.fig4.weight:
-            self.current_fig = self.fig3
+        if self.current_player.figures[0].weight >= self.current_player.figures[1].weight and \
+                self.current_player.figures[0].weight >= self.current_player.figures[2].weight and \
+                self.current_player.figures[0].weight >= self.current_player.figures[3].weight:
+            self.current_fig = self.current_player.figures[0]
+        elif self.current_player.figures[1].weight >= self.current_player.figures[0].weight and \
+                self.current_player.figures[1].weight >= self.current_player.figures[2].weight and \
+                self.current_player.figures[1].weight >= self.current_player.figures[3].weight:
+            self.current_fig = self.current_player.figures[1]
+        elif self.current_player.figures[2].weight >= self.current_player.figures[0].weight and \
+                self.current_player.figures[2].weight >= self.current_player.figures[1].weight and \
+                self.current_player.figures[2].weight >= self.current_player.figures[3].weight:
+            self.current_fig = self.current_player.figures[2]
         else:
-            self.current_fig = self.fig4
+            self.current_fig = self.current_player.figures[3]
 
         if self.current_fig.move == "deploy":
             self.deploying()
@@ -427,29 +403,34 @@ class Game:
 
     # hráč si vybírá, jaký tah zahraje
     def move_choosing(self):
-        self.fig1, self.fig2, self.fig3, self.fig4 = self.current_player.figures[0:4]
+        self.string_compilation()
 
-        mov1, mov2, mov3, mov4 = self.string_compilation()
-
-        while (mov1 != "" or mov2 != "" or mov3 != "" or mov4 != "") and self.current_player.ai is False:
+        while (self.current_player.figures[0].move_mess != "" or self.current_player.figures[1].move_mess != "" or
+               self.current_player.figures[2].move_mess != "" or self.current_player.figures[3].move_mess != "") and \
+                self.current_player.ai is False:
             print("Padla vám {}.".format(self.dice_roll))
-            player_option = input("Můžete{}{}{}{}\n".format(mov1, mov2, mov3, mov4))
-            if player_option == "1" and mov1 != "":
-                self.current_fig = self.fig1
+            player_option = input("Můžete{}{}{}{}\n".format(self.current_player.figures[0].move_mess,
+                                                            self.current_player.figures[1].move_mess,
+                                                            self.current_player.figures[2].move_mess,
+                                                            self.current_player.figures[3].move_mess))
+            if player_option == "1" and self.current_player.figures[0].move_mess != "":
+                self.current_fig = self.current_player.figures[0]
                 break
-            elif player_option == "2" and mov2 != "":
-                self.current_fig = self.fig2
+            elif player_option == "2" and self.current_player.figures[1].move_mess != "":
+                self.current_fig = self.current_player.figures[1]
                 break
-            elif player_option == "3" and mov3 != "":
-                self.current_fig = self.fig3
+            elif player_option == "3" and self.current_player.figures[2].move_mess != "":
+                self.current_fig = self.current_player.figures[2]
                 break
-            elif player_option == "4" and mov4 != "":
-                self.current_fig = self.fig4
+            elif player_option == "4" and self.current_player.figures[3].move_mess != "":
+                self.current_fig = self.current_player.figures[3]
                 break
             else:
                 print("Zadaná možnost nesouhlasí s možnostmi.\n")
         else:
-            print("Padla vám {}. Nemáte žádné tahy na výběr.\n".format(self.dice_roll))
+            if not self.current_player.undeployed:
+                print("Padla vám {}.".format(self.dice_roll))
+            print("Nemáte žádné tahy na výběr.\n")
             return
 
         if self.current_fig.tile.position == 0:
@@ -556,11 +537,12 @@ class Game:
                 player4.playing = True
 
         for player in self.players:
-            player.turns = 0
-            player.rolls = []
-            player.result = ""
-            for figure in player.figures:
-                figure.tile = figure.home
+            if player.result != "":
+                player.turns = 0
+                player.rolls = []
+                player.result = ""
+                for figure in player.figures:
+                    figure.tile = figure.home
 
         return self.main()
 
