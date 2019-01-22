@@ -61,12 +61,13 @@ class Game:
 
     # vybírání hrajícího hráče
     def side_selection(self):
-        self.current_player = self.players[self.player_index]
-
-        self.player_index += 1
+        if self.dice_roll != 6 or not self.current_player.playing:
+            self.player_index += 1
 
         if self.player_index == len(self.players):
             self.player_index = 0
+
+        self.current_player = self.players[self.player_index]
 
         if not self.current_player.playing:
             return self.side_selection()
