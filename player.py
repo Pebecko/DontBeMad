@@ -1,4 +1,5 @@
 from tactics import *
+from figures import Figure
 
 
 class Player:
@@ -6,7 +7,7 @@ class Player:
         self.number = num
         self.color = color
         self.turns = 0
-        self.figures = []
+        self.figures = [Figure]
         self.playing = False
         self.undeployed = True
         self.result = ""
