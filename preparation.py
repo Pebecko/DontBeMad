@@ -2,7 +2,7 @@ from player import player1, player2, player3, player4
 from figures import red_figures, blue_figures, green_figures, yellow_figures
 
 
-# TODO - 6 player game mode
+# TODO - choosing board sizes and games up to 6 players
 
 
 def first_player():

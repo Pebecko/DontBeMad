@@ -7,6 +7,9 @@ from preparation import player_number
 from tactics import move_nearest, kicker, deployer, running_away
 
 
+# TODO - Sumarizace výsledků do speciální složky - avarage_results.txt
+
+
 # nastavení UI
 player1.ai = True
 player2.ai = True
@@ -14,11 +17,13 @@ player3.ai = True
 player4.ai = True
 player5.ai = True
 player6.ai = True
+
 player1.tactic = move_nearest
 player2.tactic = running_away
 player3.tactic = kicker
 player4.tactic = deployer
 
+# prozatimní nastavení
 player5.playing = False
 player6.playing = False
 
@@ -38,7 +43,15 @@ class Game:
         self.player_index = 0
         self.playing = True
         self.repeating = False  # pokud má hra opakovat vše se stejným nastavením
-        self.max_tiles = 40
+
+        # board setting
+        self.possible_players = 4
+        if self.possible_players < 2:
+            self.possible_players = 2
+        self.start_distance = 10
+        if self.start_distance < 10:
+            self.start_distance = 10
+        self.max_tiles = self.possible_players * self.start_distance
 
         self.current_fig = None
 
@@ -337,6 +350,9 @@ class Game:
                                             fig.tile.color == tile_behind.color:
                                         figure.weight += pos * 5 * self.current_player.tactic.running_away
 
+                if figure.weight <= 0:
+                    figure.weight = 0.01
+
             else:
                 figure.weight = 0
 
@@ -408,7 +424,6 @@ class Game:
     def movement(self):
         # házení kostkou
         self.dice_roll = random.randint(1, 6)
-
         self.current_player.rolls.append(self.dice_roll)
 
         if self.current_player.undeployed is True:
@@ -479,7 +494,7 @@ class Game:
 
         print(message)
 
-        # ukládání výsledků do souboru
+        # ukládání výsledků do textového souboru
         file = open("results.txt", "a+")
         file.write(str(message))
         file.close()
@@ -497,21 +512,11 @@ class Game:
         self.repeating = False
         self.player_index = 0
 
-        if repeat:
-            self.repeating = True
-            player1.playing = True
-            player2.playing = True
-            if player3.color != "":
-                player3.playing = True
-            if player4.color != "":
-                player4.playing = True
-            if player5.result != "":
-                player5.playing = True
-            if player6.result != "":
-                player6.playing = True
-
         for player in self.players:
             if player.result != "":
+                if repeat:
+                    self.repeating = True
+                    player.playing = True
                 player.turns = 0
                 player.rolls = []
                 player.result = ""
