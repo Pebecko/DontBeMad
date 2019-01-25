@@ -1,7 +1,8 @@
 import random
 import time
-from player import player1, player2, player3, player4, Player
-from figures import *
+from player import player1, player2, player3, player4, player5, player6, Player
+from tile import Tile
+from figures import black_figures, orange_figures
 from preparation import player_number
 from tactics import move_nearest, kicker, deployer, running_away
 
@@ -11,13 +12,21 @@ player1.ai = True
 player2.ai = True
 player3.ai = True
 player4.ai = True
+player5.ai = True
+player6.ai = True
 player1.tactic = move_nearest
 player2.tactic = running_away
 player3.tactic = kicker
 player4.tactic = deployer
 
+player5.playing = False
+player6.playing = False
 
-# TODO - rework new coordinates
+player5.color = "black"
+player6.color = "orange"
+
+player5.figures = black_figures
+player6.figures = orange_figures
 
 
 class Game:
@@ -29,10 +38,11 @@ class Game:
         self.player_index = 0
         self.playing = True
         self.repeating = False  # pokud má hra opakovat vše se stejným nastavením
+        self.max_tiles = 40
 
         self.current_fig = None
 
-        self.players = [player1, player2, player3, player4]
+        self.players = [player1, player2, player3, player4, player5, player6]
         self.current_player = Player(0)
 
     # oznamování stavu hry
@@ -61,7 +71,7 @@ class Game:
 
     # vybírání hrajícího hráče
     def side_selection(self):
-        if self.dice_roll != 6 or not self.current_player.playing:
+        if (self.dice_roll != 6 or not self.current_player.playing) and player1.turns != 0:
             self.player_index += 1
 
         if self.player_index == len(self.players):
@@ -122,15 +132,15 @@ class Game:
 
     # posouvábí figurky
     def repositioning(self):
-        self.current_fig.tile = self.new_coordinates(self.current_fig.tile.position, self.current_fig.color,
-                                                     self.current_fig.tile.finishing)
-        print(
-            "Figurka {} se posunula na políčko {}.".format(self.current_fig.number, self.current_fig.tile.position))
+        self.current_fig.tile = self.new_coordinates(self.current_fig.tile.position, self.current_fig.tile.finishing)
+        print("Figurka {} se posunula na políčko {}.".format(self.current_fig.number, self.current_fig.tile.position))
+        if self.current_fig.tile.finish:
+            print("Figurka je v domečku.")
 
         return self.figure_kicking()
 
     # zjišťování nové pozice
-    def new_coordinates(self, pos, col, finishing, num=0):
+    def new_coordinates(self, pos, finishing, num=0):
         if num == 0:
             num = self.dice_roll
         new_pos = pos + num
@@ -139,98 +149,51 @@ class Game:
             new_pos -= 1
 
         if pos == 0:
-            if col == "red":
-                new_tile = Tile(1, finishing=False)
-            elif col == "blue":
-                new_tile = Tile(11, finishing=False)
-            elif col == "green":
-                new_tile = Tile(21, finishing=False)
+            new_tile = self.current_player.figures[0].start
+        elif new_pos == 1 or new_pos == self.max_tiles + 1 or new_pos == -1:
+            if self.current_player.figures[0].start.position + self.max_tiles == new_pos and finishing:
+                new_tile = Tile(1, color=self.current_player.color, finish=True)
             else:
-                new_tile = Tile(31, finishing=False)
-        elif new_pos == 1 or new_pos == 41or new_pos == -1:
-            if finish_red1.color != col or not finishing:
                 new_tile = Tile(1, finishing=False)
+        elif new_pos == 2 or new_pos == self.max_tiles + 2 or new_pos == -2:
+            if self.current_player.figures[0].start.position + self.max_tiles + 1 == new_pos and finishing:
+                new_tile = Tile(2, color=self.current_player.color, finish=True)
             else:
-                new_tile = finish_red1
-        elif new_pos == 2 or new_pos == 42 or new_pos == -2:
-            if finish_red1.color != col or not finishing:
                 new_tile = Tile(2, finishing=False)
+        elif new_pos == 3 or new_pos == self.max_tiles + 3 or new_pos == -3:
+            if self.current_player.figures[0].start.position + self.max_tiles + 2 == new_pos and finishing:
+                new_tile = Tile(3, color=self.current_player.color, finish=True)
             else:
-                new_tile = finish_red2
-        elif new_pos == 3 or new_pos == 43 or new_pos == -3:
-            if finish_red1.color != col or not finishing:
                 new_tile = Tile(3, finishing=False)
+        elif new_pos == 4 or new_pos == self.max_tiles + 4 or new_pos == -4:
+            if self.current_player.figures[0].start.position + self.max_tiles + 3 == new_pos and finishing:
+                new_tile = Tile(4, color=self.current_player.color, finish=True)
             else:
-                new_tile = finish_red3
-        elif new_pos == 4 or new_pos == 44 or new_pos == -4:
-            if finish_red1.color != col or not finishing:
                 new_tile = Tile(4, finishing=False)
+        elif new_pos == 5 or new_pos == self.max_tiles + 5 or new_pos == -5:
+            new_tile = Tile(5, finishing=True)
+        elif new_pos == 6 or new_pos == self.max_tiles + 6 or new_pos == -6:
+            new_tile = Tile(6, finishing=True)
+        elif new_pos % 10 == 1:
+            if self.current_player.figures[0].start.position == new_pos and finishing:
+                new_tile = Tile(new_pos, color=self.current_player.color, finish=True)
             else:
-                new_tile = finish_red4
-        elif new_pos == 5 or new_pos == 45 or new_pos == -5:
-            new_tile = Tile(5, finishing=False)
-        elif new_pos == 6 or new_pos == 46 or new_pos == -6:
-            new_tile = Tile(6, finishing=False)
-        elif new_pos == 11:
-            if finish_blue1.color != col or not finishing:
-                new_tile = Tile(11, finishing=False)
+                new_tile = Tile(new_pos, finishing=False)
+        elif new_pos % 10 == 2:
+            if self.current_player.figures[0].start.position + 1 == new_pos and finishing:
+                new_tile = Tile(new_pos, color=self.current_player.color, finish=True)
             else:
-                new_tile = finish_blue1
-        elif new_pos == 12:
-            if finish_blue1.color != col or not finishing:
-                new_tile = Tile(12, finishing=False)
+                new_tile = Tile(new_pos, finishing=False)
+        elif new_pos % 10 == 3:
+            if self.current_player.figures[0].start.position + 2 == new_pos and finishing:
+                new_tile = Tile(new_pos, color=self.current_player.color, finish=True)
             else:
-                new_tile = finish_blue2
-        elif new_pos == 13:
-            if finish_blue1.color != col or not finishing:
-                new_tile = Tile(13, finishing=False)
+                new_tile = Tile(new_pos, finishing=False)
+        elif new_pos % 10 == 4:
+            if self.current_player.figures[0].start.position + 3 == new_pos and finishing:
+                new_tile = Tile(new_pos, color=self.current_player.color, finish=True)
             else:
-                new_tile = finish_blue3
-        elif new_pos == 14:
-            if finish_blue1.color != col or not finishing:
-                new_tile = Tile(14, finishing=False)
-            else:
-                new_tile = finish_blue4
-        elif new_pos == 21:
-            if finish_green1.color != col or not finishing:
-                new_tile = Tile(21, finishing=False)
-            else:
-                new_tile = finish_green1
-        elif new_pos == 22:
-            if finish_green1.color != col or not finishing:
-                new_tile = Tile(22, finishing=False)
-            else:
-                new_tile = finish_green2
-        elif new_pos == 23:
-            if finish_green1.color != col or not finishing:
-                new_tile = Tile(23, finishing=False)
-            else:
-                new_tile = finish_green3
-        elif new_pos == 24:
-            if finish_green1.color != col or not finishing:
-                new_tile = Tile(24, finishing=False)
-            else:
-                new_tile = finish_green4
-        elif new_pos == 31:
-            if finish_yellow1.color != col or not finishing:
-                new_tile = Tile(31, finishing=False)
-            else:
-                new_tile = finish_yellow1
-        elif new_pos == 32:
-            if finish_yellow1.color != col or not finishing:
-                new_tile = Tile(32, finishing=False)
-            else:
-                new_tile = finish_yellow2
-        elif new_pos == 33:
-            if finish_yellow1.color != col or not finishing:
-                new_tile = Tile(33, finishing=False)
-            else:
-                new_tile = finish_yellow3
-        elif new_pos == 34:
-            if finish_yellow1.color != col or not finishing:
-                new_tile = Tile(34, finishing=False)
-            else:
-                new_tile = finish_yellow4
+                new_tile = Tile(new_pos, finishing=False)
         else:
             new_tile = Tile(new_pos)
 
@@ -269,7 +232,7 @@ class Game:
     # zjišťování možných akcí figurky
     def possible_move(self):
         for figure in self.current_player.figures:
-            new_tile = self.new_coordinates(figure.tile.position, figure.color, figure.tile.finishing)
+            new_tile = self.new_coordinates(figure.tile.position, figure.tile.finishing)
             figure.movable = False
 
             if figure.tile.position == 0:
@@ -280,7 +243,7 @@ class Game:
                     figure.move = "undeployable"
             elif not new_tile.finish and figure.tile.finish:
                 figure.move = "illegal"
-            elif self.new_coordinates(figure.tile.position, figure.color, figure.tile.finishing, 4).finish and (
+            elif self.new_coordinates(figure.tile.position, figure.tile.finishing, 4).finish and (
                     not new_tile.finish
                     and not figure.tile.finish) and (self.dice_roll == 5 or self.dice_roll == 6):
                 figure.move = "illegal"
@@ -340,7 +303,7 @@ class Game:
                     # zjišťování jak daleko je figurka od cíle
                     target = figure.start.position
                     if figure.tile.position >= target:
-                        target += 40
+                        target += self.max_tiles
                     finnish_distance = target - figure.tile.position
                     if finnish_distance != 0:
                         figure.weight += round(self.current_player.tactic.finnish_distance / finnish_distance * 200, 2)
@@ -356,7 +319,7 @@ class Game:
                                 figure.weight += 12 * self.current_player.tactic.opponent_start
 
                 # zjišťování zda figurka nemůže vyhodit jinou figurku svým tahem
-                new_tile = self.new_coordinates(figure.tile.position, figure.color, figure.tile.finishing)
+                new_tile = self.new_coordinates(figure.tile.position, figure.tile.finishing)
                 for player in self.players:
                     if player.playing:
                         for fig in player.figures:
@@ -366,7 +329,7 @@ class Game:
                 # zjišťování jestli figurka nemůže být vyhozena, když zůstane stát
                 if not figure.tile.finish:
                     for pos in range(1, 7):
-                        tile_behind = self.new_coordinates(figure.tile.position, figure.color, False, -pos)
+                        tile_behind = self.new_coordinates(figure.tile.position, False, -pos)
                         for player in self.players:
                             if player.playing and player.number != self.current_player.number:
                                 for fig in player.figures:
@@ -488,8 +451,12 @@ class Game:
             player.result = "druhý"
         elif "třetí" not in results:
             player.result = "třetí"
-        else:
+        elif "čtvrtý" not in results:
             player.result = "čtvrtý"
+        elif "pátý" not in results:
+            player.result = "pátý"
+        else:
+            player.result = "šestý"
 
         if not last:
             return self.checking_last()
@@ -505,7 +472,8 @@ class Game:
                 else:
                     if len(player.rolls) != 0:
                         avr /= len(player.rolls)
-                message += player.result + " - " + player.color + " " + str(avr) + " " + str(player.rolls) + "\n"
+                message += player.result + " - " + player.color + " " + str(round(avr, 4)) + " " + \
+                    str(player.rolls) + "\n"
 
         message += "\r\n"
 
@@ -527,6 +495,7 @@ class Game:
     def restarting(self, repeat=False):
         self.playing = True
         self.repeating = False
+        self.player_index = 0
 
         if repeat:
             self.repeating = True
@@ -536,6 +505,10 @@ class Game:
                 player3.playing = True
             if player4.color != "":
                 player4.playing = True
+            if player5.result != "":
+                player5.playing = True
+            if player6.result != "":
+                player6.playing = True
 
         for player in self.players:
             if player.result != "":

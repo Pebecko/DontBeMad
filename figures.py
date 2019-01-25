@@ -1,7 +1,4 @@
-from tile import *
-
-
-# TODO - redo import
+from tile import Tile
 
 
 class Figure:
@@ -17,13 +14,18 @@ class Figure:
         self.weight = 0
 
 
-#definování figurek
+# definování figurek
 red_figures = []
 blue_figures = []
 green_figures = []
 yellow_figures = []
+black_figures = []
+orange_figures = []
+
 for i in range(1, 5):
-    red_figures.append(Figure(i, home_red, Tile(1, finishing=False), "red"))
-    blue_figures.append(Figure(i, home_blue, Tile(11, finishing=False), "blue"))
-    green_figures.append(Figure(i, home_green, Tile(21, finishing=False), "green"))
-    yellow_figures.append(Figure(i, home_yellow, Tile(31, finishing=False), "yellow"))
+    red_figures.append(Figure(i, Tile(0, color="red", home=True), Tile(1, finishing=False), "red"))
+    blue_figures.append(Figure(i, Tile(0, color="blue", home=True), Tile(11, finishing=False), "blue"))
+    green_figures.append(Figure(i, Tile(0, color="green", home=True), Tile(21, finishing=False), "green"))
+    yellow_figures.append(Figure(i, Tile(0, color="yellow", home=True), Tile(31, finishing=False), "yellow"))
+    black_figures.append(Figure(i, Tile(0, color="black", home=True), Tile(41, finishing=False), "black"))
+    orange_figures.append(Figure(i, Tile(0, color="orange", home=True), Tile(51, finishing=False), "orange"))
