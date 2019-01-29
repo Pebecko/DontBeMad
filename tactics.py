@@ -9,10 +9,9 @@ class Tactic:
         self.running_away = run_away
 
 
-# TODO - Add few new working tactics
-
-
-move_nearest = Tactic(10, 6, 1)
-kicker = Tactic(6, 10, 2)
-deployer = Tactic(1, 6, 10)
-running_away = Tactic(1, 1, 1, 1, 1, 10)
+move_nearest = Tactic(10)
+kicker = Tactic(kick_out=10)
+deployer = Tactic(deploy=10)
+running_away = Tactic(run_away=10)
+tac_1 = Tactic(5, 10, 8, 3, 4, 6)
+tac_2 = Tactic(7, 6, 6, 2, 3, 4)

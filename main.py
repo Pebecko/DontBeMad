@@ -4,7 +4,7 @@ from player import player1, player2, player3, player4, player5, player6, Player
 from tile import Tile
 from figures import black_figures, orange_figures
 from preparation import player_number
-from tactics import move_nearest, kicker, deployer, running_away
+from tactics import move_nearest, kicker, deployer, running_away, tac_1, tac_2
 
 
 # TODO - Sumarizace výsledků do speciální složky - avarage_results.txt
@@ -22,8 +22,10 @@ player1.tactic = move_nearest
 player2.tactic = running_away
 player3.tactic = kicker
 player4.tactic = deployer
+player5.tactic = tac_1
+player6.tactic = tac_2
 
-# prozatimní nastavení
+# prozatimní nastavení hráčů 5 a 6
 player5.playing = False
 player6.playing = False
 
@@ -45,10 +47,10 @@ class Game:
         self.repeating = False  # pokud má hra opakovat vše se stejným nastavením
 
         # board setting
-        self.possible_players = 4
+        self.possible_players = 4  # kolik maximálně hráčů může najednou hrát
         if self.possible_players < 2:
             self.possible_players = 2
-        self.start_distance = 10
+        self.start_distance = 10  # vzdálenost mezi startovními políčky hráčů
         if self.start_distance < 10:
             self.start_distance = 10
         self.max_tiles = self.possible_players * self.start_distance
@@ -84,7 +86,7 @@ class Game:
 
     # vybírání hrajícího hráče
     def side_selection(self):
-        if (self.dice_roll != 6 or not self.current_player.playing) and player1.turns != 0:
+        if (self.dice_roll != 6 or not self.current_player.playing) and (player1.turns != 0 or not player1.playing):
             self.player_index += 1
 
         if self.player_index == len(self.players):
@@ -98,11 +100,27 @@ class Game:
         print("========================================")
         print("Hraje hráč {}. - {}".format(self.current_player.number, self.current_player.color))
 
-    def main(self):
+    # přenastavování všeho před soubojem
+    def fight_preseting(self):
         if not self.repeating:
             player_number()
 
             print("Mínus [-] před pozicí figurky znamená, že je v domečku.")
+
+        playing_num = 0
+
+        for player in self.players:
+            if player.playing:
+                for figure in player.figures:
+                    figure.start.position = figure.start.position * self.start_distance + 1
+                if player.figures[0].start.position > self.max_tiles:
+                    player.playing = False
+
+
+        return
+
+    def main(self):
+        self.fight_preseting()
 
         # herní smyčka
         while self.playing:
@@ -187,22 +205,22 @@ class Game:
             new_tile = Tile(5, finishing=True)
         elif new_pos == 6 or new_pos == self.max_tiles + 6 or new_pos == -6:
             new_tile = Tile(6, finishing=True)
-        elif new_pos % 10 == 1:
+        elif new_pos % self.start_distance == 1:
             if self.current_player.figures[0].start.position == new_pos and finishing:
                 new_tile = Tile(new_pos, color=self.current_player.color, finish=True)
             else:
                 new_tile = Tile(new_pos, finishing=False)
-        elif new_pos % 10 == 2:
+        elif new_pos % self.start_distance == 2:
             if self.current_player.figures[0].start.position + 1 == new_pos and finishing:
                 new_tile = Tile(new_pos, color=self.current_player.color, finish=True)
             else:
                 new_tile = Tile(new_pos, finishing=False)
-        elif new_pos % 10 == 3:
+        elif new_pos % self.start_distance == 3:
             if self.current_player.figures[0].start.position + 2 == new_pos and finishing:
                 new_tile = Tile(new_pos, color=self.current_player.color, finish=True)
             else:
                 new_tile = Tile(new_pos, finishing=False)
-        elif new_pos % 10 == 4:
+        elif new_pos % self.start_distance == 4:
             if self.current_player.figures[0].start.position + 3 == new_pos and finishing:
                 new_tile = Tile(new_pos, color=self.current_player.color, finish=True)
             else:
@@ -522,6 +540,8 @@ class Game:
                 player.result = ""
                 for figure in player.figures:
                     figure.tile = figure.home
+                    figure.start.position = int((figure.start.position - 1) / self.start_distance)
+
 
         return self.main()
 

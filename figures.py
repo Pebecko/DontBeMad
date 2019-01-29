@@ -23,9 +23,9 @@ black_figures = []
 orange_figures = []
 
 for i in range(1, 5):
-    red_figures.append(Figure(i, Tile(0, color="red", home=True), Tile(1, finishing=False), "red"))
-    blue_figures.append(Figure(i, Tile(0, color="blue", home=True), Tile(11, finishing=False), "blue"))
-    green_figures.append(Figure(i, Tile(0, color="green", home=True), Tile(21, finishing=False), "green"))
-    yellow_figures.append(Figure(i, Tile(0, color="yellow", home=True), Tile(31, finishing=False), "yellow"))
-    black_figures.append(Figure(i, Tile(0, color="black", home=True), Tile(41, finishing=False), "black"))
-    orange_figures.append(Figure(i, Tile(0, color="orange", home=True), Tile(51, finishing=False), "orange"))
+    red_figures.append(Figure(i, Tile(0, color="red", home=True), Tile(0, finishing=False), "red"))
+    blue_figures.append(Figure(i, Tile(0, color="blue", home=True), Tile(1, finishing=False), "blue"))
+    green_figures.append(Figure(i, Tile(0, color="green", home=True), Tile(2, finishing=False), "green"))
+    yellow_figures.append(Figure(i, Tile(0, color="yellow", home=True), Tile(3, finishing=False), "yellow"))
+    black_figures.append(Figure(i, Tile(0, color="black", home=True), Tile(4, finishing=False), "black"))
+    orange_figures.append(Figure(i, Tile(0, color="orange", home=True), Tile(5, finishing=False), "orange"))
