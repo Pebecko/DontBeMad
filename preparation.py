@@ -1,14 +1,8 @@
-from player import player1, player2, player3, player4
-from figures import red_figures, blue_figures, green_figures, yellow_figures
+from player import player1, player2, player3, player4, player5, player6
+from figures import red_figures, blue_figures, green_figures, yellow_figures, white_figures, orange_figures
 
 
-# TODO - choosing board sizes and games up to 6 players
-
-
-def first_player():
-    player1.playing = True
-    player2.playing = True
-    
+def first_player_basic():
     while True:
         player_option = input("Jakou bude mít hráč 1 barvu, [č]ervenou, [m]odrou, [z]elenou, nebo [ž]lutou?\n")
         if player_option == "č":
@@ -32,7 +26,7 @@ def first_player():
 
 
 def two_players():
-    first_player()
+    first_player_basic()
 
     if player1.color == "red":
         colors = ["[m]odrou", "[z]elenou", "[ž]lutou"]
@@ -65,11 +59,13 @@ def two_players():
         else:
             print("Zadaný vstup nesouhlasí s možnostmi.\n")
 
+    return 4, 10
+
 
 def three_players():
     player3.playing = True
 
-    first_player()
+    first_player_basic()
 
     colors = ["red", "blue", "green", "yellow"]
     figures = [red_figures, blue_figures, green_figures, yellow_figures]
@@ -113,14 +109,14 @@ def three_players():
     player2.color, player2.figures = colors[0], figures[0]
     player3.color, player3.figures = colors[1], figures[1]
 
-    return
+    return 4, 10
 
 
 def four_players():
     player3.playing = True
     player4.playing = True
 
-    first_player()
+    first_player_basic()
 
     if player1.color == "red":
         pl1 = player1
@@ -155,8 +151,19 @@ def four_players():
     pl4.color = "yellow"
     pl4.figures = yellow_figures
 
+    return 4, 10
 
-def player_number():
+
+def player_number_basic():
+    for figure in red_figures:
+        figure.start.position = 0
+    for figure in blue_figures:
+        figure.start.position = 1
+    for figure in green_figures:
+        figure.start.position = 2
+    for figure in yellow_figures:
+        figure.start.position = 3
+
     while True:
         player_option = input("Budou hrát [2], [3], nebo [4] hráči?\n")
         if player_option == "2":
@@ -165,5 +172,290 @@ def player_number():
             return three_players()
         elif player_option == "4":
             return four_players()
+        else:
+            print("Zadaný vstup nesouhlasí s možnostmi.\n")
+
+
+def player_amount():
+    while True:
+        player_option = input("Jak velkou chcete mít herní plochu, pro [2], [3], [4], [5], nebo [6] hráčů?\n")
+        if player_option == "2":
+            return 2
+        elif player_option == "3":
+            return 3
+        elif player_option == "4":
+            return 4
+        elif player_option == "5":
+            return 5
+        elif player_option == "6":
+            return 6
+        else:
+            print("Zadaný vstup nesouhlasí s možnostmi.\n")
+
+
+def playing_players(positions):
+    if positions == 2:
+        return 2
+    elif positions == 3:
+        while True:
+            player_option = input("Boudou hrát [2], nebo [3] hráči?\n")
+            if player_option == "2":
+                return 2
+            elif player_option == "3":
+                return 3
+            else:
+                print("Zadaný vstup nesouhlasí s možnostmi.\n")
+    elif positions == 4:
+        while True:
+            player_option = input("Boudou hrát [2], [3], nebo [4] hráči?\n")
+            if player_option == "2":
+                return 2
+            elif player_option == "3":
+                return 3
+            elif player_option == "4":
+                return 4
+            else:
+                print("Zadaný vstup nesouhlasí s možnostmi.\n")
+    elif positions == 5:
+        while True:
+            player_option = input("Boude hrát [2], [3], [4], nebo [5] hráčů?\n")
+            if player_option == "2":
+                return 2
+            elif player_option == "3":
+                return 3
+            elif player_option == "4":
+                return 4
+            elif player_option == "5":
+                return 5
+            else:
+                print("Zadaný vstup nesouhlasí s možnostmi.\n")
+    else:
+        while True:
+            player_option = input("Boude hrát [2], [3], [4], [5], nebo [6] hráčů?\n")
+            if player_option == "2":
+                return 2
+            elif player_option == "3":
+                return 3
+            elif player_option == "4":
+                return 4
+            elif player_option == "5":
+                return 5
+            elif player_option == "6":
+                return 6
+            else:
+                print("Zadaný vstup nesouhlasí s možnostmi.\n")
+
+
+def first_player(playing_pl):
+    red_traits = [red_figures, "red", "[č]ervená", "č"]
+    blue_traits = [blue_figures, "blue", "[m]odrá", "m"]
+    green_traits = [green_figures, "green", "[z]elená", "z"]
+    yellow_traits = [yellow_figures, "yellow", "[ž]lutá", "ž"]
+    white_traits = [white_figures, "white", "[b]ílá", "b"]
+    orange_traits = [orange_figures, "orange", "[o]ranžová", "o"]
+
+    players_traits = [red_traits, blue_traits, green_traits, yellow_traits, white_traits, orange_traits]
+
+    trait_num = 0
+    possible_colors = ""
+    for trait in players_traits:
+        trait_num += 1
+        if trait_num != 6:
+            possible_colors += "{}, ".format(trait[2])
+        else:
+            possible_colors += "nebo {}".format(trait[2])
+
+    while True:
+        player_option = input("Za jakou barvu bude hrát hráč jedna (začíná na políčku 1) {}?\n".format(possible_colors))
+        for trait in players_traits:
+            if player_option == trait[3]:
+                for figure in trait[0]:
+                    figure.start.position = 0
+                player1.figures = trait[0]
+                player1.color = trait[1]
+                players_traits.remove(trait)
+                break
+        else:
+            print("Zadaný vstup nesouhlasí s možnostmi.\n")
+
+        if len(players_traits) < 6:
+            break
+
+    return second_player(playing_pl, players_traits)
+
+
+def second_player(playing_pl, players_traits):
+    trait_num = 0
+    possible_colors = ""
+    for trait in players_traits:
+        trait_num += 1
+        if trait_num != 5:
+            possible_colors += "{}, ".format(trait[2])
+        else:
+            possible_colors += "nebo {}".format(trait[2])
+
+    while True:
+        player_option = input("Za jakou barvu bude hrát hráč dva (začíná na políčku 11) {}?\n".format(possible_colors))
+        for trait in players_traits:
+            if player_option == trait[3]:
+                for figure in trait[0]:
+                    figure.start.position = 1
+                player2.figures = trait[0]
+                player2.color = trait[1]
+                players_traits.remove(trait)
+                break
+        else:
+            print("Zadaný vstup nesouhlasí s možnostmi.\n")
+
+        if len(players_traits) < 5:
+            break
+
+    if playing_pl > 2:
+        return third_player(playing_pl, players_traits)
+    else:
+        return
+
+
+def third_player(playing_pl, players_traits):
+    player3.playing = True
+    trait_num = 0
+    possible_colors = ""
+    for trait in players_traits:
+        trait_num += 1
+        if trait_num != 4:
+            possible_colors += "{}, ".format(trait[2])
+        else:
+            possible_colors += "nebo {}".format(trait[2])
+
+    while True:
+        player_option = input("Za jakou barvu bude hrát hráč tři (začíná na políčku 21) {}?\n".format(possible_colors))
+        for trait in players_traits:
+            if player_option == trait[3]:
+                for figure in trait[0]:
+                    figure.start.position = 2
+                player3.figures = trait[0]
+                player3.color = trait[1]
+                players_traits.remove(trait)
+                break
+        else:
+            print("Zadaný vstup nesouhlasí s možnostmi.\n")
+
+        if len(players_traits) < 4:
+            break
+
+    if playing_pl > 3:
+        return fourth_player(playing_pl, players_traits)
+    else:
+        return
+
+
+def fourth_player(playing_pl, players_traits):
+    player4.playing = True
+    trait_num = 0
+    possible_colors = ""
+    for trait in players_traits:
+        trait_num += 1
+        if trait_num != 3:
+            possible_colors += "{}, ".format(trait[2])
+        else:
+            possible_colors += "nebo {}".format(trait[2])
+
+    while True:
+        player_option = input("Za jakou barvu bude mít hráč čtyři (začíná na políčku 31) {}?\n".format(possible_colors))
+        for trait in players_traits:
+            if player_option == trait[3]:
+                for figure in trait[0]:
+                    figure.start.position = 3
+                player4.figures = trait[0]
+                player4.color = trait[1]
+                players_traits.remove(trait)
+                break
+        else:
+            print("Zadaný vstup nesouhlasí s možnostmi.\n")
+
+        if len(players_traits) < 3:
+            break
+
+    if playing_pl > 4:
+        return fifth_player(playing_pl, players_traits)
+    else:
+        return
+
+
+def fifth_player(playing_pl, players_traits):
+    player5.playing = True
+    trait_num = 0
+    possible_colors = ""
+    for trait in players_traits:
+        trait_num += 1
+        if trait_num != 2:
+            possible_colors += "{}, ".format(trait[2])
+        else:
+            possible_colors += "nebo {}".format(trait[2])
+
+    while True:
+        player_option = input("Za jakou barvu bude hrát hráč pět (začíná na políčku 41) {}?\n".format(possible_colors))
+        for trait in players_traits:
+            if player_option == trait[3]:
+                for figure in trait[0]:
+                    figure.start.position = 4
+                player5.figures = trait[0]
+                player5.color = trait[1]
+                players_traits.remove(trait)
+                break
+        else:
+            print("Zadaný vstup nesouhlasí s možnostmi.\n")
+
+        if len(players_traits) < 2:
+            break
+
+    if playing_pl > 5:
+        return sixth_player(players_traits)
+    else:
+        return
+
+
+def sixth_player(players_traits):
+    player6.playing = True
+    for figure in players_traits[0][0]:
+        figure.start.position = 5
+    player6.figures = players_traits[0][0]
+    player6.color = players_traits[0][1]
+
+    return
+
+
+def start_distance_setting():
+    while True:
+        player_option = input("Jaká vzdálenost bude mezi startovacími políčky? (základní je 10) [zadejte celé číslo]\n")
+        try:
+            int(player_option)
+        except ValueError:
+            print("Zadaný vstup nesouhlasí s možnostmi.\n")
+        else:
+            return int(player_option)
+
+
+def board_setting():
+    max_pl = player_amount()
+    playing_pl = playing_players(max_pl)
+
+    first_player(playing_pl)
+
+    distance = start_distance_setting()
+
+    return max_pl, distance
+
+
+def board_type():
+    player1.playing = True
+    player2.playing = True
+
+    while True:
+        player_option = input("Chcete hrát na [z]ákladní herní desce, nebo si vytvořit [s]peciální?\n")
+        if player_option == "z":
+            return player_number_basic()
+        elif player_option == "s":
+            return board_setting()
         else:
             print("Zadaný vstup nesouhlasí s možnostmi.\n")

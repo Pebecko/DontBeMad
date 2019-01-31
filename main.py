@@ -2,8 +2,7 @@ import random
 import time
 from player import player1, player2, player3, player4, player5, player6, Player
 from tile import Tile
-from figures import black_figures, orange_figures
-from preparation import player_number
+from preparation import board_type
 from tactics import move_nearest, kicker, deployer, running_away, tac_1, tac_2
 
 
@@ -24,16 +23,6 @@ player3.tactic = kicker
 player4.tactic = deployer
 player5.tactic = tac_1
 player6.tactic = tac_2
-
-# prozatimní nastavení hráčů 5 a 6
-player5.playing = False
-player6.playing = False
-
-player5.color = "black"
-player6.color = "orange"
-
-player5.figures = black_figures
-player6.figures = orange_figures
 
 
 class Game:
@@ -103,11 +92,10 @@ class Game:
     # přenastavování všeho před soubojem
     def fight_preseting(self):
         if not self.repeating:
-            player_number()
+            self.possible_players, self.start_distance = board_type()
+            self.max_tiles = self.possible_players * self.start_distance
 
             print("Mínus [-] před pozicí figurky znamená, že je v domečku.")
-
-        playing_num = 0
 
         for player in self.players:
             if player.playing:
@@ -115,7 +103,6 @@ class Game:
                     figure.start.position = figure.start.position * self.start_distance + 1
                 if player.figures[0].start.position > self.max_tiles:
                     player.playing = False
-
 
         return
 
@@ -274,9 +261,8 @@ class Game:
                     figure.move = "undeployable"
             elif not new_tile.finish and figure.tile.finish:
                 figure.move = "illegal"
-            elif self.new_coordinates(figure.tile.position, figure.tile.finishing, 4).finish and (
-                    not new_tile.finish
-                    and not figure.tile.finish) and (self.dice_roll == 5 or self.dice_roll == 6):
+            elif self.new_coordinates(figure.tile.position, figure.tile.finishing, 4).finish and not new_tile.finish \
+                    and not figure.tile.finish and (self.dice_roll == 5 or self.dice_roll == 6):
                 figure.move = "illegal"
             elif self.block_checking(new_tile):
                 figure.move = "blocked"
@@ -375,7 +361,7 @@ class Game:
                 figure.weight = 0
 
             # debug
-            print(figure.weight)
+            # print(figure.weight)
 
         if self.current_player.figures[0].weight >= self.current_player.figures[1].weight and \
                 self.current_player.figures[0].weight >= self.current_player.figures[2].weight and \
@@ -520,9 +506,9 @@ class Game:
         option = input("\nZmáčkněte enter pro konec, nebo [s] pro obnovení hry a znovunastavení hráčů, nebo [r] pro"
                        " restartování s dosavadním nastavením.\n")
         if option == "s":
-            self.restarting()
+            return self.restarting()
         elif option == "r":
-            self.restarting(True)
+            return self.restarting(True)
 
     # restartování hry
     def restarting(self, repeat=False):
@@ -541,7 +527,6 @@ class Game:
                 for figure in player.figures:
                     figure.tile = figure.home
                     figure.start.position = int((figure.start.position - 1) / self.start_distance)
-
 
         return self.main()
 
