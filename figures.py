@@ -21,6 +21,7 @@ green_figures = []
 yellow_figures = []
 white_figures = []
 orange_figures = []
+purple_figures = []
 
 for i in range(1, 5):
     red_figures.append(Figure(i, Tile(0, color="red", home=True), Tile(0, finishing=False), "red"))
@@ -29,3 +30,5 @@ for i in range(1, 5):
     yellow_figures.append(Figure(i, Tile(0, color="yellow", home=True), Tile(3, finishing=False), "yellow"))
     white_figures.append(Figure(i, Tile(0, color="black", home=True), Tile(4, finishing=False), "black"))
     orange_figures.append(Figure(i, Tile(0, color="orange", home=True), Tile(5, finishing=False), "orange"))
+    purple_figures.append(Figure(i, Tile(0, color="purple", home=True), Tile(6, finishing=False), "purple"))
+figures = [red_figures, blue_figures, green_figures, yellow_figures, white_figures, orange_figures, purple_figures]

@@ -2,11 +2,17 @@ import random
 import time
 from player import players, Player
 from tile import Tile
-from preparation import board_type
+from preparation import board_setting
 from tactics import move_nearest, kicker, deployer, running_away, tac_1, tac_2
 
 
+# TODO - Add more player colours
 # TODO - Sumarizace výsledků do speciální složky - avarage_results.txt
+# TODO - Printing letter by letter possible
+# TODO - Options in middle of a game (To quit, changing printing speeds)
+# TODO - Tactics folder for player to edit tactics (No need to get inside code)
+# TODO - Add localization for other languages
+# TODO - Make this an executable
 
 
 # nastavení taktik UI
@@ -84,7 +90,7 @@ class Game:
     # přenastavování všeho před soubojem
     def game_preseting(self):
         if not self.repeating:
-            self.possible_players, self.start_distance = board_type()
+            self.possible_players, self.start_distance = board_setting()
             self.max_tiles = self.possible_players * self.start_distance
 
             print("Mínus [-] před pozicí figurky znamená, že je v domečku.")
