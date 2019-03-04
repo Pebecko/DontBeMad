@@ -1,30 +1,32 @@
 from player import players, player_traits
 
 
-# TODO - Automize board_size
-
-
 def board_size():
+    # string formating
+    if len(players) > 5:
+        message = "Jak velkou chcete mít herní plochu, pro [2], [3], [4], [5]"
+        for i in range(5, len(players) + 1):
+            if i == len(players):
+                message += ", nebo [{}] hráčů?\n".format(i)
+            else:
+                message += ", [{}]".format(i)
+    else:
+        message = "Něco se pokazilo (není dostatek hráčů)"
+
     while True:
-        player_option = input("Jak velkou chcete mít herní plochu, pro [2], [3], [4], [5], [6] nebo [7] hráčů?\n")
-        if player_option == "2":
-            return 2
-        elif player_option == "3":
-            return 3
-        elif player_option == "4":
-            return 4
-        elif player_option == "5":
-            return 5
-        elif player_option == "6":
-            return 6
-        else:
+        player_option = input(message)
+        try:
+            int(player_option)
+        except ValueError:
             print("Zadaný vstup nesouhlasí s možnostmi.\n")
+        else:
+            if int(player_option) < len(players) + 1 and int(player_option) > 1:
+                return int(player_option)
+            else:
+                print("Zadaný vstup nesouhlasí s možnostmi.\n")
 
 
 def player_color_deciding(max_pl):
-    for player in players:
-        player.playing = False
-
     removed_player_traits = []
     for num in range(0, max_pl):
         # no need for player to choose color of last player if there is only one to choose from
@@ -43,7 +45,7 @@ def player_color_deciding(max_pl):
                 playing_pl += 1
 
         must_choose = False
-        if num == (max_pl - 2 and playing_pl == 0) or (num == max_pl - 1 and playing_pl == 1):
+        if (num == max_pl - 2 and playing_pl == 0) or (num == max_pl - 1 and playing_pl == 1):
             must_choose = True
 
         # forming message for player

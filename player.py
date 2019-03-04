@@ -1,9 +1,8 @@
 from tactics import *
-from figures import Figure, red_figures, blue_figures, green_figures, yellow_figures, white_figures, orange_figures, \
-    purple_figures
+from figures import Figure, figures
 
 
-# TODO - Zautomatizovat player_traits (vše si budou brát jen z figurek)
+# TODO - přidat kontrolu stejných prvních písmen u jednotlivých barev
 
 
 class Player:
@@ -14,7 +13,7 @@ class Player:
         self.figures = [Figure]
         self.playing = False
         self.undeployed = True
-        self.result = ""
+        self.result = 0
         self.rolls = []
         self.ai = False
         self.tactic = Tactic()
@@ -22,12 +21,9 @@ class Player:
 
 # definování hráčů
 players = []
-player_traits = [[red_figures, "red", "[č]ervená", "č"],
-                 [blue_figures, "blue", "[m]odrá", "m"],
-                 [green_figures, "green", "[z]elená", "z"],
-                 [yellow_figures, "yellow", "[ž]lutá", "ž"],
-                 [white_figures, "white", "[b]ílá", "b"],
-                 [orange_figures, "orange", "[o]ranžová", "o"],
-                 [purple_figures, "purple", "[f]ialová", "f"]]
+player_traits = []
+for i in range(0, len(figures)):
+    player_traits.append([figures[i], figures[i][0].color, "[" + figures[i][0].language_color[0] + "]" +
+                         figures[i][0].language_color[1:], figures[i][0].language_color[0]])
 for i in range(1, len(player_traits) + 1):
     players.append(Player(i))

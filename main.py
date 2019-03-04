@@ -6,7 +6,6 @@ from preparation import board_setting
 from tactics import move_nearest, kicker, deployer, running_away, tac_1, tac_2
 
 
-# TODO - Add more player colours
 # TODO - Sumarizace výsledků do speciální složky - avarage_results.txt
 # TODO - Printing letter by letter possible
 # TODO - Options in middle of a game (To quit, changing printing speeds)
@@ -462,18 +461,10 @@ class Game:
         results = []
         for pl in players:
             results.append(pl.result)
-        if "první" not in results:
-            player.result = "první"
-        elif "druhý" not in results:
-            player.result = "druhý"
-        elif "třetí" not in results:
-            player.result = "třetí"
-        elif "čtvrtý" not in results:
-            player.result = "čtvrtý"
-        elif "pátý" not in results:
-            player.result = "pátý"
-        else:
-            player.result = "šestý"
+        for i in range(1, len(players) + 1):
+            if i not in results:
+                player.result = i
+                break
 
         if not last:
             return self.checking_last()
@@ -482,15 +473,16 @@ class Game:
     def results(self):
         message = ""
         for player in players:
-            if player.result != "":
+            if player.result != 0:
                 avr = 0
                 for num in player.rolls:
                     avr += num
                 else:
                     if len(player.rolls) != 0:
                         avr /= len(player.rolls)
-                message += player.result + " - " + player.color + " " + str(round(avr, 4)) + " " + \
-                    str(player.rolls) + "\n"
+                message += "Hráč barvy - {} skončil na {}. místě" \
+                           "".format(player.figures[0].language_color, player.result) + " - " + str(round(avr, 4)) + \
+                           " " + str(player.rolls) + "\n"
 
         message += "\r\n"
 
@@ -515,13 +507,14 @@ class Game:
         self.player_index = 0
 
         for player in players:
-            if player.result != "":
+            player.playing = False
+            if player.result != 0:
                 if repeat:
                     self.repeating = True
                     player.playing = True
                 player.turns = 0
                 player.rolls = []
-                player.result = ""
+                player.result = 0
                 for figure in player.figures:
                     figure.tile = figure.home
                     figure.start.position = int((figure.start.position - 1) / self.start_distance)
