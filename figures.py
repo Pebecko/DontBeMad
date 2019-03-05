@@ -18,7 +18,8 @@ class Figure:
 # definování barev - pro přidání nového hráče stačí přidat - {, ["barva anglicky", "barva česky"]} do colors
 # zatím je potřeba kontrolovat, že první písmena barev v češtině nejsou stejná
 colors = [["red", "červená"], ["blue", "modrá"], ["green", "zelená"], ["yellow", "žlutá"], ["white", "bílá"],
-          ["orange", "oranžová"], ["purple", "fialová"], ["pink", "růžová"]]
+          ["orange", "oranžová"], ["purple", "fialová"], ["pink", "růžová"], ["brown", "hnědá"], ["gray", "šedá"],
+          ["black", "černá"], ["silver", "stříbrná"], ["gold", "zlatá"], ["beige", "béžová"]]
 
 # definování figurek
 figures = [[] for x in range(0, len(colors))]
