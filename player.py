@@ -22,8 +22,8 @@ class Player:
 # definování hráčů
 players = []
 player_traits = []
-for i in range(0, len(figures)):
+for i in range(len(figures)):
     player_traits.append([figures[i], figures[i][0].color, "[" + figures[i][0].language_color[0] + "]" +
                          figures[i][0].language_color[1:], figures[i][0].language_color[0]])
-for i in range(1, len(player_traits) + 1):
+
     players.append(Player(i))

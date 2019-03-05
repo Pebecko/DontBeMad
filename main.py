@@ -3,7 +3,7 @@ import time
 from player import players, Player
 from tile import Tile
 from preparation import board_setting
-from tactics import move_nearest, kicker, deployer, running_away, tac_1, tac_2
+from tactics import move_nearest, kicker, deployer, running_away, tac_1, tac_2, tactics
 
 
 # TODO - Sumarizace výsledků do speciální složky - avarage_results.txt
@@ -32,6 +32,7 @@ class Game:
         self.player_index = 0
         self.playing = True
         self.repeating = False  # pokud má hra opakovat vše se stejným nastavením
+        self.random_tactics = True  # choosing UI tactics randomly
 
         # board setting
         self.possible_players = 4  # kolik maximálně hráčů může najednou hrát
@@ -91,6 +92,7 @@ class Game:
         if not self.repeating:
             self.possible_players, self.start_distance = board_setting()
             self.max_tiles = self.possible_players * self.start_distance
+            self.tactics_choosing()
 
             print("Mínus [-] před pozicí figurky znamená, že je v domečku.")
 
@@ -483,6 +485,8 @@ class Game:
                 message += "Hráč barvy - {} skončil na {}. místě" \
                            "".format(player.figures[0].language_color, player.result) + " - " + str(round(avr, 4)) + \
                            " " + str(player.rolls) + "\n"
+                if player.ai:
+                    message += "Jeho taktika byla " + player.tactic.name + ".\r\n"
 
         message += "\r\n"
 
@@ -520,6 +524,14 @@ class Game:
                     figure.start.position = int((figure.start.position - 1) / self.start_distance)
 
         return self.main()
+
+    # random tactics setting
+    def tactics_choosing(self):
+        if self.random_tactics:
+            for player in players:
+                player.tactic = random.choice(tactics)
+
+        return
 
 
 app = Game()

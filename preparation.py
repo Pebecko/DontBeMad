@@ -1,6 +1,9 @@
 from player import players, player_traits
 
 
+# TODO - Přenastavování pravidel
+
+
 def board_size():
     # string formating
     if len(players) > 5:
