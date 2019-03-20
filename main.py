@@ -1,59 +1,55 @@
 import random
 import time
-from player import player1, player2, player3, player4, player5, player6, Player
+from player import players, Player
 from tile import Tile
-from preparation import board_type
-from tactics import move_nearest, kicker, deployer, running_away, tac_1, tac_2
+from preparation import board_setting
+from tactics import move_nearest, kicker, deployer, running_away, tac_1, tac_2, tactics
+from settings import settings
 
 
 # TODO - Sumarizace výsledků do speciální složky - avarage_results.txt
+# TODO - make a text file with possible commands
+# TODO - Tactics folder for player to edit tactics (No need to get inside code)
+# TODO - Add localization for other languages
+# TODO - Make this an executable
 
 
-# nastavení UI
-player1.ai = True
-player2.ai = True
-player3.ai = True
-player4.ai = True
-player5.ai = True
-player6.ai = True
-
-player1.tactic = move_nearest
-player2.tactic = running_away
-player3.tactic = kicker
-player4.tactic = deployer
-player5.tactic = tac_1
-player6.tactic = tac_2
+# nastavení taktik UI
+players[0].tactic = move_nearest
+players[1].tactic = running_away
+players[2].tactic = kicker
+players[3].tactic = deployer
+players[4].tactic = tac_1
+players[5].tactic = tac_2
 
 
 class Game:
     def __init__(self):
+        # rules
         self.no_moving_while_dep = False  # pravidlo pro posouvání figurek když můžete nasadit
+        self.random_tactics = True  # choosing UI tactics randomly
 
-        self.wait_time = 0  # čas, který hra čeká po každém tahu
         self.dice_roll = 0
         self.player_index = 0
         self.playing = True
-        self.repeating = False  # pokud má hra opakovat vše se stejným nastavením
+        self.repeating = False  # repeating game with the same settings
 
         # board setting
-        self.possible_players = 4  # kolik maximálně hráčů může najednou hrát
+        self.possible_players = 4  # maximum number of players playing
         if self.possible_players < 2:
             self.possible_players = 2
-        self.start_distance = 10  # vzdálenost mezi startovními políčky hráčů
+        self.start_distance = 10  # distance between start tiles
         if self.start_distance < 10:
             self.start_distance = 10
         self.max_tiles = self.possible_players * self.start_distance
 
         self.current_fig = None
-
-        self.players = [player1, player2, player3, player4, player5, player6]
         self.current_player = Player(0)
 
-    # oznamování stavu hry
     def game_status(self):
         print("----------------------------------------")
-        # info o figurkách hráčů
-        for player in self.players:
+        # player figure info
+        for player in players:
             if player.playing:
                 figs = []
                 for figure in player.figures:
@@ -64,40 +60,41 @@ class Game:
 
                 for fig in player.figures:
                     if fig.tile.position != 0:
-                        print("Figurky hráče {} jsou na políčkách:".format(player.number), figs[0], figs[1], figs[2],
-                              figs[3], "\n")
+                        settings.slow_print("Figurky hráče {} jsou na políčkách: {} ; {} ; {} ; {}\n"
+                                            "".format(player.number, figs[0], figs[1], figs[2], figs[3]))
                         player.undeployed = False
                         break
                 else:
                     player.undeployed = True
-                    print("Hráč {} nemá žádnou nasazenou figurku.\n".format(player.number))
+                    settings.slow_print("Hráč {} nemá žádnou nasazenou figurku.\n".format(player.number))
                 self.finish_control(player)
 
-    # vybírání hrajícího hráče
+    # choosing playing player
     def side_selection(self):
-        if (self.dice_roll != 6 or not self.current_player.playing) and (player1.turns != 0 or not player1.playing):
+        if (self.dice_roll != 6 or not self.current_player.playing) and \
+                (players[0].turns != 0 or not players[0].playing):
             self.player_index += 1
 
-        if self.player_index == len(self.players):
+        if self.player_index == len(players):
             self.player_index = 0
 
-        self.current_player = self.players[self.player_index]
+        self.current_player = players[self.player_index]
 
         if not self.current_player.playing:
             return self.side_selection()
 
         print("========================================")
-        print("Hraje hráč {}. - {}".format(self.current_player.number, self.current_player.color))
+        settings.slow_print("Hraje hráč {}. - {}".format(self.current_player.number, self.current_player.color))
 
-    # přenastavování všeho před soubojem
-    def fight_preseting(self):
+    def game_preseting(self):
         if not self.repeating:
-            self.possible_players, self.start_distance = board_type()
+            self.possible_players, self.start_distance = board_setting()
             self.max_tiles = self.possible_players * self.start_distance
+            self.tactics_choosing()
 
-            print("Mínus [-] před pozicí figurky znamená, že je v domečku.")
+            settings.slow_print("Mínus [-] před pozicí figurky znamená, že je v domečku.")
 
-        for player in self.players:
+        for player in players:
             if player.playing:
                 for figure in player.figures:
                     figure.start.position = figure.start.position * self.start_distance + 1
@@ -107,9 +104,9 @@ class Game:
         return
 
     def main(self):
-        self.fight_preseting()
+        self.game_preseting()
 
-        # herní smyčka
+        # game loop
         while self.playing:
             # vybírání aktuálně hrajícího hráče
             self.side_selection()
@@ -124,36 +121,37 @@ class Game:
             if self.dice_roll != 6:
                 self.current_player.turns += 1
 
-            time.sleep(self.wait_time)
+            time.sleep(settings.turn_pause)
 
-        print("Hra skončila")
+        settings.slow_print("Hra skončila")
         return self.results()
 
     # vyhazování figurek
     def figure_kicking(self):
-        for player in self.players:
+        for player in players:
             if player.playing:
                 for figure in player.figures:
                     if figure.tile.position == self.current_fig.tile.position and \
                             figure.tile.color == self.current_fig.tile.color and figure.color != self.current_fig.color:
                         figure.tile = figure.home
-                        print("Figurka {}, hráče {} - {}, byla vyhozena."
-                              "".format(figure.number, player.number, figure.color))
+                        settings.slow_print("Figurka {}, hráče {} - {}, byla vyhozena."
+                                            "".format(figure.number, player.number, figure.color))
 
     # nasazování figurky
     def deploying(self):
         self.current_fig.tile = self.current_fig.start
-        print(
-            "Nasazujete figurku {} na pozici {}.".format(self.current_fig.number, self.current_fig.start.position))
+        settings.slow_print("Nasazujete figurku {} na pozici {}."
+                            "".format(self.current_fig.number, self.current_fig.start.position))
 
         return self.figure_kicking()
 
     # posouvábí figurky
     def repositioning(self):
         self.current_fig.tile = self.new_coordinates(self.current_fig.tile.position, self.current_fig.tile.finishing)
-        print("Figurka {} se posunula na políčko {}.".format(self.current_fig.number, self.current_fig.tile.position))
+        settings.slow_print("Figurka {} se posunula na políčko {}."
+                            "".format(self.current_fig.number, self.current_fig.tile.position))
         if self.current_fig.tile.finish:
-            print("Figurka je v domečku.")
+            settings.slow_print("Figurka je v domečku.")
 
         return self.figure_kicking()
 
@@ -220,17 +218,17 @@ class Game:
     # všechny figurky v domečku => 3 šance na nasazení
     def all_home(self):
         if self.dice_roll == 6:
-            print("Padla vám 6.")
+            settings.slow_print("Padla vám 6.")
         else:
-            print("Padla vám " + str(self.dice_roll) + ", nemůžete nasadit ale máte ještě dvě šance.")
+            settings.slow_print("Padla vám {}, nemůžete nasadit ale máte ještě dvě šance.".format(self.dice_roll))
             for j in range(0, 2):
                 self.dice_roll = random.randint(1, 6)
                 self.current_player.rolls.append(self.dice_roll)
                 if self.dice_roll == 6:
-                    print("Padla vám 6.")
+                    settings.slow_print("Padla vám 6.")
                     break
                 else:
-                    print("Padla vám", self.dice_roll)
+                    settings.slow_print("Padla vám {}".format(self.dice_roll))
             else:
                 return
 
@@ -330,14 +328,14 @@ class Game:
                         figure.weight += 10 * self.current_player.tactic.clearing_start
 
                     # zjišťování, zda figurka nestojí na startovním políčku jiného hrajícího hráče
-                    for pl in self.players:
+                    for pl in players:
                         if pl.playing and pl.number != self.current_player.number:
                             if figure.tile.position == pl.figures[0].start.position:
                                 figure.weight += 12 * self.current_player.tactic.opponent_start
 
                 # zjišťování zda figurka nemůže vyhodit jinou figurku svým tahem
                 new_tile = self.new_coordinates(figure.tile.position, figure.tile.finishing)
-                for player in self.players:
+                for player in players:
                     if player.playing:
                         for fig in player.figures:
                             if new_tile.color == fig.tile.color and new_tile.position == fig.tile.position:
@@ -347,7 +345,7 @@ class Game:
                 if not figure.tile.finish:
                     for pos in range(1, 7):
                         tile_behind = self.new_coordinates(figure.tile.position, False, -pos)
-                        for player in self.players:
+                        for player in players:
                             if player.playing and player.number != self.current_player.number:
                                 for fig in player.figures:
                                     if fig.tile.position == tile_behind.position and \
@@ -392,11 +390,11 @@ class Game:
         while (self.current_player.figures[0].move_mess != "" or self.current_player.figures[1].move_mess != "" or
                self.current_player.figures[2].move_mess != "" or self.current_player.figures[3].move_mess != "") and \
                 self.current_player.ai is False:
-            print("Padla vám {}.".format(self.dice_roll))
-            player_option = input("Můžete{}{}{}{}\n".format(self.current_player.figures[0].move_mess,
-                                                            self.current_player.figures[1].move_mess,
-                                                            self.current_player.figures[2].move_mess,
-                                                            self.current_player.figures[3].move_mess))
+            settings.slow_print("Padla vám {}.".format(self.dice_roll))
+            player_option = settings.base_options("Můžete{}{}{}{}\n".format(self.current_player.figures[0].move_mess,
+                                                                            self.current_player.figures[1].move_mess,
+                                                                            self.current_player.figures[2].move_mess,
+                                                                            self.current_player.figures[3].move_mess))
             if player_option == "1" and self.current_player.figures[0].move_mess != "":
                 self.current_fig = self.current_player.figures[0]
                 break
@@ -409,12 +407,12 @@ class Game:
             elif player_option == "4" and self.current_player.figures[3].move_mess != "":
                 self.current_fig = self.current_player.figures[3]
                 break
-            else:
-                print("Zadaná možnost nesouhlasí s možnostmi.\n")
+            elif player_option != "skip":
+                settings.slow_print("Zadaná možnost nesouhlasí s možnostmi.\n")
         else:
             if not self.current_player.undeployed:
-                print("Padla vám {}.".format(self.dice_roll))
-            print("Nemáte žádné tahy na výběr.\n")
+                settings.slow_print("Padla vám {}.".format(self.dice_roll))
+            settings.slow_print("Nemáte žádné tahy na výběr.\n")
             return
 
         if self.current_fig.tile.position == 0:
@@ -448,7 +446,7 @@ class Game:
     def checking_last(self):
         num = 0
         player = None
-        for pl in self.players:
+        for pl in players:
             if pl.playing:
                 num += 1
                 player = pl
@@ -462,20 +460,12 @@ class Game:
     def player_placing(self, player, last=False):
         player.playing = False
         results = []
-        for pl in self.players:
+        for pl in players:
             results.append(pl.result)
-        if "první" not in results:
-            player.result = "první"
-        elif "druhý" not in results:
-            player.result = "druhý"
-        elif "třetí" not in results:
-            player.result = "třetí"
-        elif "čtvrtý" not in results:
-            player.result = "čtvrtý"
-        elif "pátý" not in results:
-            player.result = "pátý"
-        else:
-            player.result = "šestý"
+        for i in range(1, len(players) + 1):
+            if i not in results:
+                player.result = i
+                break
 
         if not last:
             return self.checking_last()
@@ -483,16 +473,19 @@ class Game:
     # vypisování a ukládání výsledků
     def results(self):
         message = ""
-        for player in self.players:
-            if player.result != "":
+        for player in players:
+            if player.result != 0:
                 avr = 0
                 for num in player.rolls:
                     avr += num
                 else:
                     if len(player.rolls) != 0:
                         avr /= len(player.rolls)
-                message += player.result + " - " + player.color + " " + str(round(avr, 4)) + " " + \
-                    str(player.rolls) + "\n"
+                message += "Hráč barvy - {} skončil na {}. místě" \
+                           "".format(player.figures[0].language_color, player.result) + " - " + str(round(avr, 4)) + \
+                           " " + str(player.rolls) + "\n"
+                if player.ai:
+                    message += "Jeho taktika byla " + player.tactic.name + ".\r\n"
 
         message += "\r\n"
 
@@ -503,12 +496,15 @@ class Game:
         file.write(str(message))
         file.close()
 
-        option = input("\nZmáčkněte enter pro konec, nebo [s] pro obnovení hry a znovunastavení hráčů, nebo [r] pro"
-                       " restartování s dosavadním nastavením.\n")
-        if option == "s":
-            return self.restarting()
-        elif option == "r":
-            return self.restarting(True)
+        while True:
+            option = settings.base_options("\nZmáčkněte enter pro konec, nebo [s] pro obnovení hry a znovunastavení"
+                                           " hráčů, nebo [r] pro restartování s dosavadním nastavením.\n")
+            if option == "s":
+                return self.restarting()
+            elif option == "r":
+                return self.restarting(True)
+            elif option != "skip":
+                quit()
 
     # restartování hry
     def restarting(self, repeat=False):
@@ -516,19 +512,28 @@ class Game:
         self.repeating = False
         self.player_index = 0
 
-        for player in self.players:
-            if player.result != "":
+        for player in players:
+            player.playing = False
+            if player.result != 0:
                 if repeat:
                     self.repeating = True
                     player.playing = True
                 player.turns = 0
                 player.rolls = []
-                player.result = ""
+                player.result = 0
                 for figure in player.figures:
                     figure.tile = figure.home
                     figure.start.position = int((figure.start.position - 1) / self.start_distance)
 
         return self.main()
+
+    # random tactics setting
+    def tactics_choosing(self):
+        if self.random_tactics:
+            for player in players:
+                player.tactic = random.choice(tactics)
+
+        return
 
 
 app = Game()

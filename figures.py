@@ -2,11 +2,12 @@ from tile import Tile
 
 
 class Figure:
-    def __init__(self, number, tile, start, color=""):
+    def __init__(self, number, tile, start, color="", lang_color=""):
         self.number = number
         self.tile = tile
         self.start = start
         self.color = color
+        self.language_color = lang_color
         self.home = tile
         self.movable = False
         self.move = ""
@@ -14,18 +15,16 @@ class Figure:
         self.weight = 0
 
 
-# definování figurek
-red_figures = []
-blue_figures = []
-green_figures = []
-yellow_figures = []
-white_figures = []
-orange_figures = []
+# definování barev - pro přidání nového hráče stačí přidat - {, ["barva anglicky", "barva česky"]} do colors
+# zatím je potřeba kontrolovat, že první písmena barev v češtině nejsou stejná
+colors = [["red", "červená"], ["blue", "modrá"], ["green", "zelená"], ["yellow", "žlutá"], ["white", "bílá"],
+          ["orange", "oranžová"], ["purple", "fialová"], ["pink", "růžová"], ["brown", "hnědá"], ["gray", "šedá"],
+          ["black", "černá"], ["silver", "stříbrná"], ["gold", "zlatá"], ["beige", "béžová"]]
 
-for i in range(1, 5):
-    red_figures.append(Figure(i, Tile(0, color="red", home=True), Tile(0, finishing=False), "red"))
-    blue_figures.append(Figure(i, Tile(0, color="blue", home=True), Tile(1, finishing=False), "blue"))
-    green_figures.append(Figure(i, Tile(0, color="green", home=True), Tile(2, finishing=False), "green"))
-    yellow_figures.append(Figure(i, Tile(0, color="yellow", home=True), Tile(3, finishing=False), "yellow"))
-    white_figures.append(Figure(i, Tile(0, color="black", home=True), Tile(4, finishing=False), "black"))
-    orange_figures.append(Figure(i, Tile(0, color="orange", home=True), Tile(5, finishing=False), "orange"))
+# definování figurek
+figures = [[] for x in range(0, len(colors))]
+
+for i in range(0, len(colors)):
+    for j in range(1, 5):
+        figures[i].append(Figure(j, Tile(0, color=colors[i][0], home=True), Tile(i, finishing=False), colors[i][0],
+                                 colors[i][1]))
