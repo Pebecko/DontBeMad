@@ -1,3 +1,3 @@
 # DontBeMad
 
-To start just run main.py
+To start just run main.py in game file

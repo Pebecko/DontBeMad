@@ -23,7 +23,7 @@ def board_size():
         except ValueError:
             print("Zadaný vstup nesouhlasí s možnostmi.\n")
         else:
-            if int(player_option) < len(players) + 1 and int(player_option) > 1:
+            if 1 < int(player_option) <= len(players):
                 return int(player_option)
             else:
                 print("Zadaný vstup nesouhlasí s možnostmi.\n")

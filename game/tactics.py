@@ -11,7 +11,7 @@ class Tactic:
 
 
 all_basic = Tactic("basic")
-move_nearest = Tactic("move nearest", 10)
+move_nearest = Tactic("move nearest", fin_dis=10)
 kicker = Tactic("kick", kick_out=10)
 deployer = Tactic("deploy", deploy=10)
 running_away = Tactic("run away from other figures", run_away=10)

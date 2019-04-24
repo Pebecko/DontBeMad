@@ -7,8 +7,8 @@ class Settings:
         self.writing_time = 0
         self.turn_pause = 0
 
-    def slow_print(self, s):
-        for c in s:
+    def slow_print(self, string):
+        for c in string:
             sys.stdout.write(c)
             sys.stdout.flush()
             if self.writing_time > 0:
