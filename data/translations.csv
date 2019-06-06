@@ -1,0 +1,54 @@
+item;czech;english;hungarian
+lang_name;èeština;english;tschabajkotschspraakosh
+please_choose_language;Vyberte prosím jazyk:;Please choose your language:;Vybierajosh svojosh jazykösh:
+input_error;Zadaná možnost nesouhlasí s možnostmi.;This input is incorrect.;Suomi perrrrrrrkele. (Nieèžozsh sieshe pösralošh)
+which_color_is_player;Za jakou barvu bude hrát hráè {} (zaèíná na políèku {}) {};Which color will player {} play as (starts on tile {}) {} ;
+which_distance_between_starts;Jaká vzdálenost bude mezi startovacími políèky? (základní je 10) [zadejte celé èíslo vìtší než 9];How many tiles will be between each start? (basic is 10) [input a whole number greater than 9];
+not_enough_colors_error;*color error - nedostatek barev*;*color error - not enough colors*;
+how_big_board;Jak velkou chcete mít herní plochu, pro ;How large do you want the board to be, for ;
+or_players_greater_five;, nebo [{}] hráèù?;, or [{}] players?;
+or_players_less_five;, nebo [{}] hráèe?;, or [{}] players?;
+two_players; hráèe?; players?;
+or_?;nebo [{}]{}?;or [{}]{}?;
+this_player_not_playing; Pokud si pøejete aby nehrál stisknìte [Shift+n] / [N].; If you don't want him to play press [Shift+n] / [N].;
+player_ai_or_real;Chcete aby hráè {} byl ovládán [h]ráèem, nebo [u]mìlou inteligencí?;Do you want player {} to be controlled by [h]uman, or am [a]i?;
+choosing_pl_ai_1;h;h;
+choosing_pl_ai_2;u;a;
+what_kind_of_players;Budou hrát jen [h]ráèi, samotná [u]mìlá inteligence, nebo si chcete [v]ybrat jak budou jednotlivé barvy ovládány?;Who will be playing? Only [h]umans, only [a]i, or do you want to choose [s]eparately?;
+ai_setting_1;h;h;
+ai_setting_2;u;a;
+ai_setting_3;v;s;
+figures_are_on_tiles;"Figurky hráèe {} jsou na políèkách: {} ; {} ; {} ; {}";"Figures of player {} are on tiles: {} ; {} ; {} ; {}";
+player_no_figure;Hráè {} nemá žádnou nasazenou figurku.;Player {} has no figure in the field.;
+player_is_playing;Hraje hráè {}. - {};Player {} is playing. - {};
+minus_means_home;Mínus [-] pøed pozicí figurky znamená, že je v domeèku.;Minus [-] in front of the figure position means it is in finish.;
+game_ended;Hra skonèila.;Game ended.;
+figure_kicked;Figurka {}, hráèe {} - {}, byla vyhozena.;Figure {} of player {} - {} has beem kicked out.;
+deploying_figure;Nasazujete figurku {} na pozici {}.;You are deploying figure {} on tile {}.;
+figure_moved;Figurka {} se posunula na políèko {}.;Figure {} has moved to tile {}.;
+figure_at_home;Figurka je v domeèku.;Figure is in the finish.;
+rolled_six;Padla vám 6.;You rolled 6.;
+rolled_st_more_chances;Padla vám {}, nemùžete nasadit ale máte ještì dvì šance.;You rolled {}. You can't move but you still have two more chances.;
+rolled_st;Padla vám {}.;You rolled {}. ;
+moving_figure_choosing;Mùžete{}{}{}{};You can{}{}{}{};
+no_moves;Nemáte žádné tahy na výbìr.;You have no possible moves.;
+deploy;nasadit;deploy;
+reposition;poposunout;move;
+figure; figurku [{}]; figure [{}];
+player_placing;Hráè barvy - {} skonèil na {}. místì;Player of color - {} has endes on the {}. place.;
+his_tactic;Jeho taktika byla {}.{};His tactic was {}.{};
+end_message;Zmáèknìte enter pro konec, nebo [s] pro obnovení hry a znovunastavení hráèù, nebo [r] pro restartování s dosavadním nastavením.;Press enter to quit, or [s] to restart and choose all game setting, or [r] to restart with current settings.;
+rules_setting;Chcete si [n]astavit pravidla, nebo je [p]onecháte na základních?;;
+rules_setting_1;n;;
+rules_setting_2;p;;
+rules_no_mv_whl_dp;Chcete aby když hráèi padne 6, tak [m]usel nasadit, nebo [n]e (základní)?;;
+rules_no_mv_whl_dp_1;m;;
+rules_no_mv_whl_dp_2;n;;
+rules_rnd_tcs;Pøejete si aby byly umìlým inteligencím [n]áhodnì pøiøazovány taktiky ze všech možných (základní), nebo aby byly striktnì [u]rèeny?;;
+rules_rnd_tcs_1;n;;
+rules_rnd_tcs_2;u;;
+how_fast_print;Jak rychle chcete aby se text vypisoval, [i]nstantnì, [r]ychle, nebo [p]omalu?;;
+how_fast_print_1;i;;
+how_fast_print_2;r;;
+how_fast_print_3;p;;
+how_long_pause;Jak dlouhou pauzu mezi tahy chcete? [celé èíslo vìtší nebo rovné 0];;

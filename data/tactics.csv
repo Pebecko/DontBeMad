@@ -1,0 +1,8 @@
+name;distance_to_finish;kicking_out;deployment;clearing_own_start;clearing_opponents_starts;running_away
+basic;1;1;1;1;1;1
+move nearest;20;1;1;1;1;1
+kick;1;20;1;1;1;1
+deploy;1;1;20;1;1;1
+run away;1;1;1;1;1;20
+tactic 1;5;10;8;3;4;6
+tactic 2;7;6;6;2;3;4
