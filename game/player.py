@@ -11,7 +11,12 @@ class Player:
         self.figures = [Figure]
         self.playing = False
         self.undeployed = True
-        self.result = 0
-        self.rolls = []
+        self.has_deployed = False
         self.ai = False
         self.tactic = Tactic()
+        # after game stats
+        self.result = 0
+        self.rolls = []
+        self.inactive_turns = 0
+        self.others_figures_kicked = 0
+        self.own_figures_kicked = 0

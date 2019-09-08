@@ -1,7 +1,7 @@
 item;czech;english;hungarian
 lang_name;èeština;english;tschabajkotschspraakosh
 please_choose_language;Vyberte prosím jazyk:;Please choose your language:;Vybierajosh svojosh jazykösh:
-input_error;Zadaná možnost nesouhlasí s možnostmi.;This input is incorrect.;Suomi perrrrrrrkele. (Nieèžozsh sieshe pösralošh)
+input_error;Zadaná možnost nesouhlasí s možnostmi.;This input is incorrect.;Suomi perrrkele. (Nieèžozsh sieshe pösralošh)
 which_color_is_player;Za jakou barvu bude hrát hráè {} (zaèíná na políèku {}) {};Which color will player {} play as (starts on tile {}) {} ;
 which_distance_between_starts;Jaká vzdálenost bude mezi startovacími políèky? (základní je 10) [zadejte celé èíslo vìtší než 9];How many tiles will be between each start? (basic is 10) [input a whole number greater than 9];
 not_enough_colors_error;*color error - nedostatek barev*;*color error - not enough colors*;
@@ -38,17 +38,26 @@ figure; figurku [{}]; figure [{}];
 player_placing;Hráè barvy - {} skonèil na {}. místì;Player of color - {} has endes on the {}. place.;
 his_tactic;Jeho taktika byla {}.{};His tactic was {}.{};
 end_message;Zmáèknìte enter pro konec, nebo [s] pro obnovení hry a znovunastavení hráèù, nebo [r] pro restartování s dosavadním nastavením.;Press enter to quit, or [s] to restart and choose all game setting, or [r] to restart with current settings.;
-rules_setting;Chcete si [n]astavit pravidla, nebo je [p]onecháte na základních?;;
-rules_setting_1;n;;
-rules_setting_2;p;;
-rules_no_mv_whl_dp;Chcete aby když hráèi padne 6, tak [m]usel nasadit, nebo [n]e (základní)?;;
-rules_no_mv_whl_dp_1;m;;
-rules_no_mv_whl_dp_2;n;;
-rules_rnd_tcs;Pøejete si aby byly umìlým inteligencím [n]áhodnì pøiøazovány taktiky ze všech možných (základní), nebo aby byly striktnì [u]rèeny?;;
+rules_setting;Chcete si [n]astavit pravidla, nebo je [p]onecháte na základních?;Do you want to specify [y]our rules, or do you want to use the [b]asic rules?;
+rules_setting_1;n;y;
+rules_setting_2;p;b;
+rules_no_mv_whl_dp;Chcete aby když hráèi padne 6, tak [m]usel nasadit, nebo [n]e (základní)?;Do you want to have to [d]eploy figure when you roll six or be able to [m]ove (base option)?;
+rules_no_mv_whl_dp_1;m;d;
+rules_no_mv_whl_dp_2;n;m;
+rules_rnd_tcs;Pøejete si, aby byly umìlým inteligencím [n]áhodnì pøiøazovány taktiky ze všech možných (základní), nebo aby byly striktnì [u]rèeny?;;
 rules_rnd_tcs_1;n;;
 rules_rnd_tcs_2;u;;
-how_fast_print;Jak rychle chcete aby se text vypisoval, [i]nstantnì, [r]ychle, nebo [p]omalu?;;
+how_fast_print;Jak rychle chcete, aby se text vypisoval, [i]nstantnì, [r]ychle, nebo [p]omalu?;;
 how_fast_print_1;i;;
 how_fast_print_2;r;;
 how_fast_print_3;p;;
 how_long_pause;Jak dlouhou pauzu mezi tahy chcete? [celé èíslo vìtší nebo rovné 0];;
+rules_no_rpt_whl_six;Chtìli byste, aby hráè [h]rál znovu (základní), poté co mu padne šestka, nebo [n]e?;;
+rules_no_rpt_whl_six_1;n;;
+rules_no_rpt_whl_six_2;h;;
+thr_rls_onl_first;Pøejete si , aby hráèi mohli házet tøikrát [j]en do doby než si poprvé nasadí (základní), nebo [p]okaždé když budou mít všechny figurky v domeèku?;;
+thr_rls_onl_first_1;j;;
+thr_rls_onl_first_2;p;;
+no_record;Pøáli byste si, aby vám byl vypsán pouze [v]ýsledek (kratší doba èekání), nebo celý [p]rùbìh hry (základní)?;;
+no_record_1;v;;
+no_record_2;p;;

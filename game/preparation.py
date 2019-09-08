@@ -11,7 +11,7 @@ def defining_figures():
 
     for i in range(0, len(settings.color_names)):
         for j in range(1, 5):
-            figures[i].append(Figure(j, Tile(0, color=settings.color_names[i], home=True),
+            figures[i].append(Figure(j, Tile(0, color=settings.color_names[i], home=True, finishing=False),
                                      Tile(i, finishing=False), settings.color_names[i]))
 
     return figures
@@ -151,7 +151,7 @@ def choosing_player_ai(players):
     return players
 
 
-def ai_setting(max_pl, distance, players, no_mv_whl_dp, rnd_tcs):
+def ai_setting(max_pl, distance, players, rules):
     while True:
         player_option = settings.base_options("what_kind_of_players")
 
@@ -162,6 +162,10 @@ def ai_setting(max_pl, distance, players, no_mv_whl_dp, rnd_tcs):
         elif player_option == settings.translation("ai_setting_2"):
             for player in players:
                 player.ai = True
+
+            # asking if player wants to have full record of the game or just the result
+            rules["no_record"] = choosing_rule("no_record", "no_record_1", "no_record_2")
+
             break
         elif player_option == settings.translation("ai_setting_3"):
             players = choosing_player_ai(players)
@@ -169,40 +173,45 @@ def ai_setting(max_pl, distance, players, no_mv_whl_dp, rnd_tcs):
         elif player_option != "skip":
             settings.translate_slow_print("input_error")
 
-    return max_pl, distance, players, no_mv_whl_dp, rnd_tcs
+    return max_pl, distance, players, rules
+
+
+def choosing_rule(rule_mess="", rule_ans_1="", rule_ans_2=""):
+    while True:
+        player_option = settings.base_options(rule_mess)
+        if player_option == settings.translation(rule_ans_1):
+            return True
+        elif player_option == settings.translation(rule_ans_2):
+            return False
+        elif player_option != "skip":
+            settings.translate_slow_print("input_error")
 
 
 def rules_setting():
     while True:
+        rules = {"no_rpt_whl_six": False, "rnd_tcs": True, "no_mv_whl_dp": False, "thr_rls_onl_first": True,
+                 "no_record": False}
         player_option = settings.base_options("rules_setting")
         if player_option == settings.translation("rules_setting_1"):
-            # no moving while deploying
-            while True:
-                player_option = settings.base_options("rules_no_mv_whl_dp")
-                if player_option == "rules_no_mv_whl_dp_1":
-                    no_mv_whl_dp = True
-                    break
-                elif player_option == "rules_no_mv_whl_dp_2":
-                    no_mv_whl_dp = False
-                    break
-                elif player_option != "skip":
-                    settings.translate_slow_print("input_error")
+            # no repositioning if deploying is possible
+            rules["no_mv_whl_dp"] = choosing_rule("rules_no_mv_whl_dp", "rules_no_mv_whl_dp_1", "rules_no_mv_whl_dp_2")
+
             # random ai tactics
-            while True:
-                player_option = settings.base_options("rules_rnd_tcs")
-                if player_option == "rules_rnd_tcs_1":
-                    rnd_tcs = True
-                    break
-                elif player_option == "rules_rnd_tcs_2":
-                    rnd_tcs = False
-                    break
-                elif player_option != "skip":
-                    settings.translate_slow_print("input_error")
-            return no_mv_whl_dp, rnd_tcs
+            rules["rnd_tcs"] = choosing_rule("rules_rnd_tcs", "rules_rnd_tcs_1", "rules_rnd_tcs_2")
+
+            # no repeating when six
+            rules["no_rpt_whl_six"] = choosing_rule("rules_no_rpt_whl_six", "rules_no_rpt_whl_six_1",
+                                                    "rules_no_rpt_whl_six_2")
+
+            # three rolls only before first deployment
+            rules["thr_rls_onl_first"] = choosing_rule("thr_rls_onl_first", "thr_rls_onl_first_1",
+                                                       "thr_rls_onl_first_2")
+
+            return rules
 
         # basic settings
         elif player_option == settings.translation("rules_setting_2"):
-            return False, True
+            return rules
 
         elif player_option != "skip":
             settings.translate_slow_print("input_error")
@@ -217,6 +226,6 @@ def board_setting():
 
     players = player_color_deciding(figures, max_pl, distance)
 
-    no_mv_whl_dp, rnd_tcs = rules_setting()
+    rules = rules_setting()
 
-    return ai_setting(max_pl, distance, players, no_mv_whl_dp, rnd_tcs)
+    return ai_setting(max_pl, distance, players, rules)

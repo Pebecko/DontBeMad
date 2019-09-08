@@ -1,7 +1,8 @@
-
 .vscode/settings.json
+data/results.txt
+
 *.iml
 *.xml
-venv/
 
+venv/
 game/__pycache__/

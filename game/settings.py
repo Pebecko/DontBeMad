@@ -9,7 +9,7 @@ class Settings:
     def __init__(self):
         self.writing_time = 0
         self.turn_pause = 0
-        self.language = "czech"
+        self.language = "english"
         self.color_names = []
         self.max_prefix_of_word_length = 3
 
@@ -176,11 +176,11 @@ class Settings:
         option = input()
 
         # leaving the game
-        if option == "quit" or option == "exit" or option in leaving:
+        if option == "quit" or option == "exit" or option in leaving and option != "":
             quit()
 
         # changing language
-        elif option == "language" or option in language_change:
+        elif option == "language" or option in language_change and option != "":
             csv_file = open(Path(__file__).parent.parent / "data/translations.csv", "r")
             trans_list = csv.reader(csv_file, delimiter=";")
 
@@ -222,7 +222,7 @@ class Settings:
             csv_file.close()
 
         # changing character printing speed
-        elif option == "time" or option in print_time_change:
+        elif option == "time" or option in print_time_change and option != "":
             option = "skip"
             while True:
                 self.translate_slow_print("how_fast_print")
@@ -242,7 +242,7 @@ class Settings:
                     settings.translate_slow_print("input_error")
 
         # changing pauses lengths between turns
-        elif option == "pause" or option in pause_change:
+        elif option == "pause" or option in pause_change and option != "":
             option = "skip"
             while True:
                 self.translate_slow_print("how_long_pause")

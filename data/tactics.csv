@@ -1,4 +1,4 @@
-name;distance_to_finish;kicking_out;deployment;clearing_own_start;clearing_opponents_starts;running_away
+name;distance_to_finish;kicking_figures;deploying_figures;clearing_your_start_tile;clearing_opponents_start_tiles;running_away_from_opponents_figures
 basic;1;1;1;1;1;1
 move nearest;20;1;1;1;1;1
 kick;1;20;1;1;1;1

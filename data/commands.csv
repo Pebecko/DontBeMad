@@ -1,4 +1,4 @@
-quit;exit;
-language;jazyk;lang
-time;èas;
-pause;pauza;
+quit;exit;leave;odejít
+language;jazyk;lang;
+time;èas;print;
+pause;pauza;break;
