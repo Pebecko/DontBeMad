@@ -13,7 +13,6 @@ class Tactic:
         self.running_away = run_away
 
 
-"""
 tactics = []
 
 
@@ -50,3 +49,4 @@ tac_1 = Tactic("tactic 1", 5, 10, 8, 3, 4, 6)
 tac_2 = Tactic("tactic 2", 7, 6, 6, 2, 3, 4)
 
 tactics = [basic, move_nearest, kicker, deployer, running_away, tac_1, tac_2]
+"""

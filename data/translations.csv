@@ -3,7 +3,7 @@ lang_name;èeština;english;tschabajkotschspraakosh
 please_choose_language;Vyberte prosím jazyk:;Please choose your language:;Vybierajosh svojosh jazykösh:
 input_error;Zadaná možnost nesouhlasí s možnostmi.;This input is incorrect.;Suomi perrrkele. (Nieèžozsh sieshe pösralošh)
 which_color_is_player;Za jakou barvu bude hrát hráè {} (zaèíná na políèku {}) {};Which color will player {} play as (starts on tile {}) {} ;
-which_distance_between_starts;Jaká vzdálenost bude mezi startovacími políèky? (základní je 10) [zadejte celé èíslo vìtší než 9];How many tiles will be between each start? (basic is 10) [input a whole number greater than 9];
+which_distance_between_starts;Jaká vzdálenost bude mezi startovacími políèky? [zadejte celé èíslo vìtší , nebo rovno {}];How many tiles will be between each start? [input a whole number greater than 9];
 not_enough_colors_error;*color error - nedostatek barev*;*color error - not enough colors*;
 how_big_board;Jak velkou chcete mít herní plochu, pro ;How large do you want the board to be, for ;
 or_players_greater_five;, nebo [{}] hráèù?;, or [{}] players?;
@@ -18,10 +18,10 @@ what_kind_of_players;Budou hrát jen [h]ráèi, samotná [u]mìlá inteligence, nebo s
 ai_setting_1;h;h;
 ai_setting_2;u;a;
 ai_setting_3;v;s;
-figures_are_on_tiles;"Figurky hráèe {} jsou na políèkách: {} ; {} ; {} ; {}";"Figures of player {} are on tiles: {} ; {} ; {} ; {}";
-player_no_figure;Hráè {} nemá žádnou nasazenou figurku.;Player {} has no figure in the field.;
+figures_are_on_tiles;Figurky hráèe {} - {} jsou na políèkách:;"Figures of player {} are on tiles: {} ; {} ; {} ; {}";
+player_no_figure;Hráè {} - {} nemá žádnou nasazenou figurku.;Player {} has no figure in the field.;
 player_is_playing;Hraje hráè {}. - {};Player {} is playing. - {};
-minus_means_home;Mínus [-] pøed pozicí figurky znamená, že je v domeèku.;Minus [-] in front of the figure position means it is in finish.;
+character_means_home;[{}] pøed a za pozicí figurky znamená, že je v domeèku.;Minus [-] in front of the figure position means it is in finish.;
 game_ended;Hra skonèila.;Game ended.;
 figure_kicked;Figurka {}, hráèe {} - {}, byla vyhozena.;Figure {} of player {} - {} has beem kicked out.;
 deploying_figure;Nasazujete figurku {} na pozici {}.;You are deploying figure {} on tile {}.;
@@ -30,7 +30,7 @@ figure_at_home;Figurka je v domeèku.;Figure is in the finish.;
 rolled_six;Padla vám 6.;You rolled 6.;
 rolled_st_more_chances;Padla vám {}, nemùžete nasadit ale máte ještì dvì šance.;You rolled {}. You can't move but you still have two more chances.;
 rolled_st;Padla vám {}.;You rolled {}. ;
-moving_figure_choosing;Mùžete{}{}{}{};You can{}{}{}{};
+moving_figure_choosing;Mùžete;You can;
 no_moves;Nemáte žádné tahy na výbìr.;You have no possible moves.;
 deploy;nasadit;deploy;
 reposition;poposunout;move;
@@ -61,3 +61,7 @@ thr_rls_onl_first_2;p;;
 no_record;Pøáli byste si, aby vám byl vypsán pouze [v]ýsledek (kratší doba èekání), nebo celý [p]rùbìh hry (základní)?;;
 no_record_1;v;;
 no_record_2;p;;
+how_big_maximal_roll;Jaké èíslo mùže maximálnì padnout na kostce? [zadejte celé èíslo vìtší, nebo rovno 1];;
+how_big_minimal_roll;Jaké nejmenší èíslo mùžen na kostce padnout? [zadejte celé èíslo vìtší, nebo rovno 1 a menší, nebo rovno {}];;
+how_big_min_deploy_roll;Jaké èíslo bude minimálnì potøeba hodit na kostce, aby hráè mohl nasadit? [zadejte celé èíslo vìtší, nebo rovno {} a menší, nebo rovno {}];;
+how_many_figures;Kolik figurek bude každý hráè mít? [zadejte celé èíšlo vìtší, nebo rovno 1];;

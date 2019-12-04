@@ -1,122 +1,92 @@
-import random
-import time
+from random import choice
+from time import sleep
 from pathlib import Path
 from player import Player
 from tile import Tile
-from preparation import board_setting
+from dice import Dice
+from preparation import Preparation
 from tactics import tactics
 from settings import settings
 
 
+# TODO - Changing possible number of figures and upgrade changing distance between start tiles
+# TODO - Add new stats to the results (size of the board, number of figures,...)
 # TODO - Tactics folder for player to edit tactics (No need to get inside code)
-# TODO - Filling rest of player slots as an option
+# TODO - Filling rest of undecided player slots as an option
 # TODO - Do not allow commands shorter than 4 letters
 # TODO - Rewrite base AI
 # TODO - Create useful README
-# TODO - Make code check for (.csv) files
+# TODO - Make code check for existence of (.csv) files
 # TODO - *Make the AI decide using a neural network
 # TODO - *Make a version using PyQt5
 
 
 class Game:
     def __init__(self):
-        # rules
-        self.no_repeat_when_six = bool  # player will not get a second turn when rolling six
-        self.no_moving_while_dep = bool  # player must deploy if he can
-        self.random_tactics = bool  # choosing UI tactics randomly
-        self.once_three_rolls = bool  # player rolls three times only before he first deploys
-        self.no_record = bool  # game will print out only results
+        self.finish_marking_character = "-"
+        self.rules = {}
 
         # board setting
-        self.possible_players = 4  # maximum number of players playing
-        if self.possible_players < 2:
-            self.possible_players = 2
-        self.start_distance = 10  # distance between start tiles
-        if self.start_distance < 10:
-            self.start_distance = 10
-        self.max_tiles = self.possible_players * self.start_distance
+        self.max_number_of_players = 2  # maximum number of players playing
+        self.distance_between_starts = 10  # distance between start tiles
+        self.max_tiles = 20
 
         # game variables
         self.players = []
-        self.dice_roll = 0
+        self.dice = Dice()
         self.player_index = 0
         self.playing = True
         self.repeating = False  # repeating game with the same settings
         self.current_fig = None
         self.current_player = Player(0)
 
-    def game_status(self):
-        if not self.no_record:
-            print("----------------------------------------")
-        # player figures info
-        for player in self.players:
-            if player.playing:
-                figs = []
-                for figure in player.figures:
-                    if figure.tile.finish is False:
-                        figs.append(figure.tile.position)
-                    else:
-                        figs.append(-figure.tile.position)
+    def main(self):
+        self.game_presetting()
 
-                # checking if players figures are in the field and printing their positions
-                for fig in player.figures:
-                    if fig.tile.position != 0:
-                        if not self.no_record:
-                            settings.translate_slow_print("figures_are_on_tiles",
-                                                          (player.number, figs[0], figs[1], figs[2], figs[3]))
-                        player.undeployed = False
-                        break
-                # printing out there are no players figures in the field
-                else:
-                    player.undeployed = True
-                    if not self.no_record:
-                        settings.translate_slow_print("player_no_figure", (player.number,))
-                self.all_figures_finished_control(player)
+        self.game_loop()
 
-    def choosing_playing_player(self):
-        if (self.dice_roll != 6 or not self.current_player.playing) and \
-                (self.players[0].turns != 0 or not self.players[0].playing):
-            self.player_index += 1
+        # ending game
+        settings.translate_slow_print("game_ended")
+        return self.results()
 
-        if self.player_index == len(self.players):
-            self.player_index = 0
-
-        self.current_player = self.players[self.player_index]
-
-        if not self.current_player.playing:
-            return self.choosing_playing_player()
-
-        if not self.no_record:
-            print("========================================")
-            settings.translate_slow_print("player_is_playing",
-                                          (self.current_player.number, self.current_player.color.translation))
-
+    # game preparation
     def game_presetting(self):
         if not self.repeating:
-            self.possible_players, self.start_distance, self.players, rules = board_setting()
-            self.no_repeat_when_six, self.no_moving_while_dep, self.random_tactics, self.once_three_rolls, \
-                self.no_record = rules["no_rpt_whl_six"], rules["no_mv_whl_dp"], rules["rnd_tcs"], \
-                rules["thr_rls_onl_first"], rules["no_record"]
+            self.getting_variables_from_preparation()
+            self.setting_variables_from_preparation()
 
-            self.max_tiles = self.possible_players * self.start_distance
-            self.random_ai_tactics_choosing()
+            settings.translate_slow_print("character_means_home", (self.finish_marking_character,),
+                                          no_record=self.rules["no_record"])
 
-            if not self.no_record:
-                settings.translate_slow_print("minus_means_home")
-
-        for player in self.players:
-            if player.playing:
-                for figure in player.figures:
-                    figure.start.position = figure.start.position * self.start_distance + 1
-                if player.figures[0].start.position > self.max_tiles:
-                    player.playing = False
+        self.presetting_players_and_figures()
 
         return
 
-    def main_game_loop(self):
-        self.game_presetting()
+    def getting_variables_from_preparation(self):
+        self.max_number_of_players, self.distance_between_starts, self.players, self.rules, \
+            self.dice = Preparation().main()
 
-        # game loop
+    def setting_variables_from_preparation(self):
+        self.max_tiles = self.max_number_of_players * self.distance_between_starts
+        if self.rules["rnd_tcs"]:
+            self.random_ai_tactics_choosing()
+
+    def random_ai_tactics_choosing(self):
+        for player in self.players:
+            player.tactic = choice(tactics)
+
+        return
+
+    def presetting_players_and_figures(self):
+        for player in self.players:
+            if player.playing:
+                for figure in player.figures:
+                    figure.start.position = figure.start.position * self.distance_between_starts + 1
+                if player.figures[0].start.position > self.max_tiles:
+                    player.playing = False
+
+    # main game
+    def game_loop(self):
         while self.playing:
             self.choosing_playing_player()
 
@@ -124,151 +94,143 @@ class Game:
 
             self.game_status()
 
-            # finding out if player should play again
-            if self.dice_roll != 6 and not self.no_repeat_when_six:
-                self.current_player.turns += 1
+            self.finding_if_player_should_move_again()
 
-            time.sleep(settings.turn_pause)
+            sleep(settings.turn_pause)
 
-        # ending game
-        settings.translate_slow_print("game_ended")
-        return self.results()
+    def choosing_playing_player(self):
+        self.changing_player_index()
 
-    def dice_rolling(self):
-        self.dice_roll = random.randint(1, 6)
-        self.current_player.rolls.append(self.dice_roll)
+        self.current_player = self.players[self.player_index]
+
+        # skipping inactive players
+        if not self.current_player.playing:
+            return self.choosing_playing_player()
+
+        if not self.rules["no_record"]:
+            self.outputting_choosing_playing_player_message()
 
         return
 
-    def figure_kicking(self):
-        for player in self.players:
-            if player.playing:
-                for figure in player.figures:
-                    if figure.tile.position == self.current_fig.tile.position and \
-                            figure.tile.color.name == self.current_fig.tile.color.name and \
-                            figure.color.name != self.current_fig.color.name:
-                        figure.tile = figure.home
-                        if not self.no_record:
-                            settings.translate_slow_print("figure_kicked",
-                                                          (figure.number, player.number, figure.color.translation))
+    def changing_player_index(self):
+        if (self.dice.dice_roll < self.dice.min_deploy_roll or not self.current_player.playing) and \
+                (self.players[0].turns != 0 or not self.players[0].playing):
+            self.player_index += 1
 
-                        player.own_figures_kicked += 1
-                        self.current_player.others_figures_kicked += 1
+        self.checking_for_player_index_overflowing()
 
-    def figure_deploying(self):
-        self.current_fig.tile = self.current_fig.start
-        if not self.no_record:
-            settings.translate_slow_print("deploying_figure", (self.current_fig.number,
-                                                               self.current_fig.start.position))
+    def checking_for_player_index_overflowing(self):
+        if self.player_index == len(self.players):
+            self.player_index = 0
 
-        if not self.current_player.has_deployed:
-            self.current_player.has_deployed = True
+    def outputting_choosing_playing_player_message(self):
+        print("========================================")
+        settings.translate_slow_print("player_is_playing",
+                                      (self.current_player.number, self.current_player.color.translation))
 
-        return self.figure_kicking()
+    def choosing_number_of_rolls(self):
+        self.dice.dice_rolling(self.current_player)
 
-    def figure_repositioning(self):
-        self.current_fig.tile = self.finding_figures_new_coordinates(self.current_fig.tile.position,
-                                                                     self.current_fig.tile.finishing)
-        if not self.no_record:
-            settings.translate_slow_print("figure_moved", (self.current_fig.number, self.current_fig.tile.position))
-        if self.current_fig.tile.finish and not self.no_record:
-            settings.translate_slow_print("figure_at_home")
+        # player has no figures in the field or in finish
+        if self.current_player.undeployed:
+            self.all_player_figures_home()
 
-        return self.figure_kicking()
-
-    def finding_figures_new_coordinates(self, pos, finishing, num=0):
-        if num == 0:
-            num = self.dice_roll
-        new_pos = pos + num
-
-        if new_pos < 1 and num < 1:
-            new_pos -= 1
-
-        # going to be deployed
-        if pos == 0:
-            new_tile = self.current_player.figures[0].start
-        # going to one of first six tiles of the board
-        elif new_pos == 1 or new_pos == self.max_tiles + 1 or new_pos == -1:
-            if (self.current_player.figures[0].start.position + self.max_tiles == new_pos or
-                    self.current_player.figures[0].start.position == new_pos) and finishing:
-                new_tile = Tile(1, color=self.current_player.color, finish=True)
-            else:
-                new_tile = Tile(1, finishing=False)
-        elif new_pos == 2 or new_pos == self.max_tiles + 2 or new_pos == -2:
-            if (self.current_player.figures[0].start.position + self.max_tiles + 1 == new_pos or
-                    self.current_player.figures[0].start.position + 1 == new_pos) and finishing:
-                new_tile = Tile(2, color=self.current_player.color, finish=True)
-            else:
-                new_tile = Tile(2, finishing=False)
-        elif new_pos == 3 or new_pos == self.max_tiles + 3 or new_pos == -3:
-            if (self.current_player.figures[0].start.position + self.max_tiles + 2 == new_pos or
-                    self.current_player.figures[0].start.position + 2 == new_pos) and finishing:
-                new_tile = Tile(3, color=self.current_player.color, finish=True)
-            else:
-                new_tile = Tile(3, finishing=False)
-        elif new_pos == 4 or new_pos == self.max_tiles + 4 or new_pos == -4:
-            if (self.current_player.figures[0].start.position + self.max_tiles + 3 == new_pos or
-                    self.current_player.figures[0].start.position + 3 == new_pos) and finishing:
-                new_tile = Tile(4, color=self.current_player.color, finish=True)
-            else:
-                new_tile = Tile(4, finishing=False)
-        elif new_pos == 5 or new_pos == self.max_tiles + 5 or new_pos == -5:
-            new_tile = Tile(5, finishing=True)
-        elif new_pos == 6 or new_pos == self.max_tiles + 6 or new_pos == -6:
-            new_tile = Tile(6, finishing=True)
-        # going to the finish
-        elif new_pos % self.start_distance == 1:
-            if self.current_player.figures[0].start.position == new_pos and finishing:
-                new_tile = Tile(new_pos, color=self.current_player.color, finish=True)
-            else:
-                new_tile = Tile(new_pos, finishing=False)
-        elif new_pos % self.start_distance == 2:
-            if self.current_player.figures[0].start.position + 1 == new_pos and finishing:
-                new_tile = Tile(new_pos, color=self.current_player.color, finish=True)
-            else:
-                new_tile = Tile(new_pos, finishing=False)
-        elif new_pos % self.start_distance == 3:
-            if self.current_player.figures[0].start.position + 2 == new_pos and finishing:
-                new_tile = Tile(new_pos, color=self.current_player.color, finish=True)
-            else:
-                new_tile = Tile(new_pos, finishing=False)
-        elif new_pos % self.start_distance == 4:
-            if self.current_player.figures[0].start.position + 3 == new_pos and finishing:
-                new_tile = Tile(new_pos, color=self.current_player.color, finish=True)
-            else:
-                new_tile = Tile(new_pos, finishing=False)
-        # going to a normal tile
+        if self.current_player.ai:
+            return self.ai_moving()
         else:
-            new_tile = Tile(new_pos)
-
-        return new_tile
+            return self.player_moving()
 
     def all_player_figures_home(self):
-        # dice rolls for players deploying
-        if self.dice_roll == 6 and not self.no_record:
-            settings.translate_slow_print("rolled_six")
-        elif self.once_three_rolls and self.current_player.has_deployed and not self.no_record:
-            settings.translate_slow_print("rolled_st", (self.dice_roll,))
-            settings.translate_slow_print("no_moves")
-        else:
-            if not self.no_record:
-                settings.translate_slow_print("rolled_st_more_chances", (self.dice_roll,))
-            for j in range(0, 2):
-                self.dice_rolling()
-                if self.dice_roll == 6:
-                    if not self.no_record:
-                        settings.translate_slow_print("rolled_six")
-                    break
-                else:
-                    if not self.no_record:
-                        settings.translate_slow_print("rolled_st", (self.dice_roll,))
-            else:
-                return
+        # player can deploy instantly
+        if self.dice.dice_roll >= self.dice.min_deploy_roll:
+            settings.translate_slow_print("rolled_st", (self.dice.dice_roll,), no_record=self.rules["no_record"])
 
-        # dice roll for players movement after deploying his first figure
-        self.dice_rolling()
+        # player has no more rolls in this turn thanks to rules
+        elif self.rules["thr_rls_onl_first"] and self.current_player.has_deployed:
+            settings.translate_slow_print("rolled_st", (self.dice.dice_roll,), no_record=self.rules["no_record"])
+            settings.translate_slow_print("no_moves", no_record=self.rules["no_record"])
+
+        # player has two more rolls
+        else:
+            self.player_rolling_two_more_times()
+
+    def player_rolling_two_more_times(self):
+        settings.translate_slow_print("rolled_st_more_chances", (self.dice.dice_roll,),
+                                      no_record=self.rules["no_record"])
+        for j in range(0, 2):
+            self.dice.dice_rolling(self.current_player)
+            if self.dice.dice_roll >= self.dice.min_deploy_roll:
+                settings.translate_slow_print("rolled_st", (self.dice.dice_roll,), no_record=self.rules["no_record"])
+                return self.deploying_first_figure_in_three_rolls()
+            else:
+                settings.translate_slow_print("rolled_st", (self.dice.dice_roll,),
+                                              no_record=self.rules["no_record"])
+
+        return
+
+    def deploying_first_figure_in_three_rolls(self):
+        self.dice.dice_rolling(self.current_player)
         self.current_fig = self.current_player.figures[0]
         return self.figure_deploying()
+
+    def player_moving(self):
+        self.movement_string_compilation()
+
+        exists_movable_figure = self.finding_if_exists_movable_figure()
+
+        while exists_movable_figure:
+            return self.player_choosing_move()
+
+        # no figures can move
+        else:
+            return self.player_has_no_moves()
+
+    def player_choosing_move(self):
+        settings.translate_slow_print("rolled_st", (self.dice.dice_roll,))
+
+        player_option = settings.base_options(self.compiling_movement_message(), translate=False)
+
+        for figure in self.current_player.figures:
+            if player_option == str(figure.number) and figure.movable:
+                self.current_fig = figure
+                return self.choosing_how_should_figure_move()
+
+        self.checking_if_player_changed_settings(player_option)
+
+    def movement_string_compilation(self):
+        self.finding_possible_move()
+
+        for figure in self.current_player.figures:
+            if figure.movable and not self.rules["no_record"]:
+                self.compiling_movement_string_if_figure_movable(figure)
+            else:
+                figure.move_mess = ""
+
+        return
+
+    def finding_possible_move(self):
+        for figure in self.current_player.figures:
+            new_tile = self.finding_figures_new_coordinates(figure.tile.position, figure.tile.finishing)
+            figure.movable = False
+
+            if figure.tile.position == 0:
+                self.finding_move_if_figure_at_home(figure)
+            elif not new_tile.finish and figure.tile.finish:
+                figure.move = "illegal"
+            elif self.figure_blocked_checking(new_tile):
+                figure.move = "blocked"
+            elif not new_tile.finish and self.dice.dice_roll > self.finding_minimal_roll_to_get_to_finish(figure):
+                figure.move = "illegal"
+            else:
+                self.finding_move_if_figure_in_field(figure)
+
+        return
+
+    def finding_move_if_figure_at_home(self, figure):
+        if self.dice.dice_roll >= self.dice.min_deploy_roll and not self.figure_blocked_checking(figure.start):
+            figure.movable, figure.move = True, "deploy"
+        else:
+            figure.move = "undeployable"
 
     def figure_blocked_checking(self, new_tile):
         for figure in self.current_player.figures:
@@ -277,58 +239,75 @@ class Game:
 
         return False
 
-    def finding_possible_move(self):
-        for figure in self.current_player.figures:
-            new_tile = self.finding_figures_new_coordinates(figure.tile.position, figure.tile.finishing)
-            figure.movable = False
+    def finding_minimal_roll_to_get_to_finish(self, figure):
+        if figure.start.position > figure.tile.position:
+            return figure.start.position - figure.tile.position
+        else:
+            return figure.start.position + self.max_tiles - figure.tile.position
 
-            if figure.tile.position == 0:
-                if self.dice_roll == 6 and not self.figure_blocked_checking(figure.start):
-                    figure.movable = True
-                    figure.move = "deploy"
-                else:
-                    figure.move = "undeployable"
-            elif not new_tile.finish and figure.tile.finish:
+    def finding_move_if_figure_in_field(self, figure):
+        # player can only move if he has no figures at home due to rules
+        if self.dice.dice_roll >= self.dice.min_deploy_roll and self.rules["no_mv_whl_dp"]:
+            if self.finding_if_player_has_figures_at_home():
                 figure.move = "illegal"
-            elif self.finding_figures_new_coordinates(figure.tile.position, figure.tile.finishing, 4).finish and \
-                    not new_tile.finish and not figure.tile.finish and (self.dice_roll == 5 or self.dice_roll == 6):
-                figure.move = "illegal"
-            elif self.figure_blocked_checking(new_tile):
-                figure.move = "blocked"
             else:
-                if self.dice_roll == 6 and self.no_moving_while_dep:
-                    for fig in self.current_player.figures:
-                        if fig.tile.home:
-                            fig.move = "illegal"
-                            break
-                    else:
-                        figure.movable = True
-                        figure.move = "reposition"
-                else:
-                    figure.movable = True
-                    figure.move = "reposition"
+                figure.movable, figure.move = True, "reposition"
+        # player can normally move
+        else:
+            figure.movable, figure.move = True, "reposition"
+
+    def finding_if_player_has_figures_at_home(self):
+        for figure in self.current_player.figures:
+            if figure.tile.home:
+                return True
+        else:
+            return False
+
+    @staticmethod
+    def compiling_movement_string_if_figure_movable(figure):
+        figure.move_mess = ", "
+        if figure.move == "deploy":
+            figure.move_mess += settings.translation("deploy")
+        else:
+            figure.move_mess += settings.translation("reposition")
+        figure.move_mess += settings.translation("figure").format(figure.number)
 
         return
 
-    def movement_string_compilation(self):
-        self.finding_possible_move()
+    def finding_if_exists_movable_figure(self):
+        for figure in self.current_player.figures:
+            if figure.movable:
+                return True
+        else:
+            return False
 
-        # AI choosing move
-        if self.current_player.ai:
-            self.ai_move_choosing()
+    def compiling_movement_message(self):
+        message = settings.translation("moving_figure_choosing")
 
         for figure in self.current_player.figures:
             if figure.movable:
-                figure.move_mess = ", "
-                if figure.move == "deploy":
-                    figure.move_mess += settings.translation("deploy")
-                else:
-                    figure.move_mess += settings.translation("reposition")
-                figure.move_mess += settings.translation("figure").format(figure.number)
-            else:
-                figure.move_mess = ""
+                message += figure.move_mess
 
-    def ai_move_choosing(self):
+        return message
+
+    def checking_if_player_changed_settings(self, player_option):
+        if player_option != "skip":
+            settings.translate_slow_print("input_error")
+        else:
+            self.movement_string_compilation()
+
+        return
+
+    def player_has_no_moves(self):
+        if not self.current_player.undeployed:
+            settings.translate_slow_print("rolled_st", (self.dice.dice_roll,), no_record=self.rules["no_record"])
+
+        settings.translate_slow_print("no_moves")
+        self.current_player.inactive_turns += 1
+
+        return
+
+    def ai_moving(self):
         for figure in self.current_player.figures:
             # checking if figure can move
             if figure.movable:
@@ -415,47 +394,7 @@ class Game:
 
         return
 
-    def player_move_choosing(self):
-        self.movement_string_compilation()
-
-        while (self.current_player.figures[0].move_mess != "" or self.current_player.figures[1].move_mess != "" or
-               self.current_player.figures[2].move_mess != "" or self.current_player.figures[3].move_mess != "") and \
-                self.current_player.ai is False:
-            self.movement_string_compilation()
-
-            settings.translate_slow_print("rolled_st", (self.dice_roll,))
-            player_option = settings.base_options("moving_figure_choosing", (self.current_player.figures[0].move_mess,
-                                                                             self.current_player.figures[1].move_mess,
-                                                                             self.current_player.figures[2].move_mess,
-                                                                             self.current_player.figures[3].move_mess))
-            # first figure
-            if player_option == "1" and self.current_player.figures[0].move_mess != "":
-                self.current_fig = self.current_player.figures[0]
-                break
-            # second figure
-            elif player_option == "2" and self.current_player.figures[1].move_mess != "":
-                self.current_fig = self.current_player.figures[1]
-                break
-            # third figure
-            elif player_option == "3" and self.current_player.figures[2].move_mess != "":
-                self.current_fig = self.current_player.figures[2]
-                break
-            # fourth figure
-            elif player_option == "4" and self.current_player.figures[3].move_mess != "":
-                self.current_fig = self.current_player.figures[3]
-                break
-            # player changing settings
-            elif player_option != "skip":
-                settings.translate_slow_print("input_error")
-        # no figures can move
-        else:
-            if not self.current_player.undeployed and not self.no_record:
-                settings.translate_slow_print("rolled_st", (self.dice_roll,))
-            if not self.current_player.ai:
-                settings.translate_slow_print("no_moves")
-                self.current_player.inactive_turns += 1
-            return
-
+    def choosing_how_should_figure_move(self):
         # deploying selected figure
         if self.current_fig.tile.position == 0:
             self.figure_deploying()
@@ -463,37 +402,116 @@ class Game:
         else:
             self.figure_repositioning()
 
+    def figure_deploying(self):
+        self.current_fig.tile = self.current_fig.start
+        settings.translate_slow_print("deploying_figure", (self.current_fig.number, self.current_fig.start.position),
+                                      no_record=self.rules["no_record"])
+
+        if not self.current_player.has_deployed:
+            self.current_player.has_deployed = True
+
+        return self.figure_kicking()
+
+    def figure_repositioning(self):
+        self.current_fig.tile = self.finding_figures_new_coordinates(self.current_fig.tile.position,
+                                                                     self.current_fig.tile.finishing)
+        settings.translate_slow_print("figure_moved", (self.current_fig.number, self.current_fig.tile.position),
+                                      no_record=self.rules["no_record"])
+        if self.current_fig.tile.finish:
+            settings.translate_slow_print("figure_at_home", no_record=self.rules["no_record"])
+
+        return self.figure_kicking()
+
+    def finding_figures_new_coordinates(self, current_position, finishing, num=0):
+        new_position = self.finding_new_position_value(current_position, num)
+
+        if current_position == 0:
+            return self.current_player.figures[0].start
+        elif self.current_player.figures[0].start.position <= new_position <= \
+                self.current_player.figures[0].start.position + len(self.current_player.figures) - 1:
+            if finishing:
+                return Tile(new_position, color=self.current_player.color, finish=True)
+            elif abs(new_position % self.distance_between_starts) == len(self.current_player.figures):
+                return Tile(new_position)
+            else:
+                return Tile(new_position, finishing=False)
+        else:
+            return Tile(new_position)
+
+    def finding_new_position_value(self, current_position, num):
+        if num == 0:
+            num = self.dice.dice_roll
+        new_position = current_position + num
+
+        if new_position < 1 and num < 1:
+            new_position += self.max_tiles
+
+        if new_position > self.max_tiles:
+            new_position -= self.max_tiles
+
+        return new_position
+
+    def figure_kicking(self):
+        for player in self.players:
+            if player.playing and player.color.name != self.current_player.color.name:
+                for figure in player.figures:
+                    if figure.tile.position == self.current_fig.tile.position and \
+                            figure.tile.color.name == self.current_fig.tile.color.name and \
+                            figure.color.name != self.current_fig.color.name:
+                        figure.tile = figure.home
+                        settings.translate_slow_print("figure_kicked",
+                                                      (figure.number, player.number, figure.color.translation),
+                                                      no_record=self.rules["no_record"])
+
+                        player.own_figures_kicked += 1
+                        self.current_player.others_figures_kicked += 1
+
+    def game_status(self):
+        if not self.rules["no_record"]:
+            print("----------------------------------------")
+
+        for player in self.players:
+            if player.playing:
+                self.finding_player_status(player)
+
         return
 
-    def choosing_number_of_rolls(self):
-        self.dice_rolling()
+    def finding_player_status(self, player):
+        message = self.setting_status_message()
+        figure_not_in_finish = False
+        figures_on_board = False
 
-        # player has no figures in the field or in finish
-        if self.current_player.undeployed:
-            self.all_player_figures_home()
-
-        return self.player_move_choosing()
-
-    def all_figures_finished_control(self, player):
         for figure in player.figures:
-            if figure.tile.finish is not True:
-                return
-        # all figures are in the finish
+            message = self.updating_status_message(figure, message)
+            if not figure.tile.finish and not figure_not_in_finish:
+                figure_not_in_finish = True
+            if figure.tile.position != 0 and not figures_on_board:
+                figures_on_board = True
+
+        if not figure_not_in_finish:
+            return self.setting_player_placing(player)
+
+        if figures_on_board:
+            self.player_has_figures_on_board(player, message)
         else:
-            self.setting_player_placing(player)
+            self.player_has_all_figures_at_home(player)
 
-    def checking_for_last_player(self):
-        num = 0
-        player = None
-        for pl in self.players:
-            if pl.playing:
-                num += 1
-                player = pl
+    def setting_status_message(self):
+        if not self.rules["no_record"]:
+            message = settings.translation("figures_are_on_tiles")
+        else:
+            message = ""
 
-        # last player in game
-        if num == 1:
-            self.playing = False
-            return self.setting_player_placing(player, True)
+        return message
+
+    def updating_status_message(self, figure, message):
+        if not self.rules["no_record"]:
+            if figure.tile.finish is False:
+                message += " {};".format(figure.tile.position)
+            else:
+                message += " {}{}{};".format(self.finish_marking_character, figure.tile.position,
+                                             self.finish_marking_character)
+        return message
 
     def setting_player_placing(self, player, last=False):
         player.playing = False
@@ -508,6 +526,41 @@ class Game:
         if not last:
             return self.checking_for_last_player()
 
+        return
+
+    def checking_for_last_player(self):
+        number_of_playing_players = 0
+        last_playing_player = None
+
+        for player in self.players:
+            if player.playing:
+                number_of_playing_players += 1
+                last_playing_player = player
+
+        # last player in game
+        if number_of_playing_players == 1:
+            self.playing = False
+            return self.setting_player_placing(last_playing_player, True)
+
+        return
+
+    def player_has_figures_on_board(self, player, message):
+        player.undeployed = False
+
+        if not self.rules["no_record"]:
+            message = message[:-1]
+            settings.slow_print(message.format(player.number, player.color.translation))
+
+    def player_has_all_figures_at_home(self, player):
+        player.undeployed = True
+        if not self.rules["no_record"]:
+            settings.translate_slow_print("player_no_figure", (player.number, player.color.translation))
+
+    def finding_if_player_should_move_again(self):
+        if self.dice.dice_roll < self.dice.min_deploy_roll and not self.rules["no_rpt_whl_six"]:
+            self.current_player.turns += 1
+
+    # end of the game
     def results(self):
         # printing results to the player
         message = ""
@@ -563,17 +616,10 @@ class Game:
                 player.result = 0
                 for figure in player.figures:
                     figure.tile = figure.home
-                    figure.start.position = int((figure.start.position - 1) / self.start_distance)
+                    figure.start.position = int((figure.start.position - 1) / self.distance_between_starts)
 
-        return self.main_game_loop()
-
-    def random_ai_tactics_choosing(self):
-        if self.random_tactics:
-            for player in self.players:
-                player.tactic = random.choice(tactics)
-
-        return
+        return self.main()
 
 
 app = Game()
-app.main_game_loop()
+app.main()

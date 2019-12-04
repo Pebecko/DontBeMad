@@ -1,6 +1,6 @@
-import sys
-import time
-import csv
+from sys import stdout
+from time import sleep
+from csv import reader, DictReader
 from pathlib import Path
 from color import Color
 
@@ -9,21 +9,22 @@ class Settings:
     def __init__(self):
         self.writing_time = 0
         self.turn_pause = 0
-        self.language = "english"
+        self.language = "czech"
         self.color_names = []
         self.max_prefix_of_word_length = 3
 
-    def slow_print(self, string, newline=False):
-        if newline:
-            string += "\n"
-        for c in string:
-            sys.stdout.write(c)
-            sys.stdout.flush()
+    def slow_print(self, string, newline=False, no_record=False):
+        if not no_record:
+            if newline:
+                string += "\n"
+            for c in string:
+                stdout.write(c)
+                stdout.flush()
+                if self.writing_time > 0:
+                    sleep(self.writing_time)
+            print("")
             if self.writing_time > 0:
-                time.sleep(self.writing_time)
-        print("")
-        if self.writing_time > 0:
-            time.sleep(0.1)
+                sleep(0.1)
 
     def translation(self, item_name, lang=None):
         if lang is None:
@@ -31,7 +32,7 @@ class Settings:
 
         # open translations csv file
         csv_file = open(Path(__file__).parent.parent / "data/translations.csv", "r")
-        trans = csv.DictReader(csv_file, delimiter=";")
+        trans = DictReader(csv_file, delimiter=";")
 
         # search for the item in the file
         for line in trans:
@@ -45,15 +46,15 @@ class Settings:
 
         return str(translation)
 
-    def translate_slow_print(self, translating, formatting=(), newline=False):
-        self.slow_print(self.translation(translating).format(*formatting), newline)
+    def translate_slow_print(self, translating, formatting=(), newline=False, no_record=False):
+        self.slow_print(self.translation(translating).format(*formatting), newline, no_record)
 
     def finding_color_names(self):
         colors = []
 
         # open colors translations csv file
         csv_file = open(Path(__file__).parent.parent / "data/colors.csv", "r")
-        trans = csv.DictReader(csv_file, delimiter=";")
+        trans = DictReader(csv_file, delimiter=";")
 
         # finding color names
         for line in trans:
@@ -63,7 +64,8 @@ class Settings:
 
         self.color_names = self.removing_duplicate_colors(colors)
 
-    def removing_duplicate_colors(self, colors):
+    @staticmethod
+    def removing_duplicate_colors(colors):
         new_colors = []
 
         for color in colors:
@@ -93,7 +95,7 @@ class Settings:
         for color in self.color_names:
             # open translations csv file
             csv_file = open(Path(__file__).parent.parent / "data/colors.csv", "r")
-            trans = csv.DictReader(csv_file, delimiter=";")
+            trans = DictReader(csv_file, delimiter=";")
 
             # search for the item in the file
             for line in trans:
@@ -142,19 +144,16 @@ class Settings:
                             trans_col.suffix = " " + trans_col.translation
                             break
 
-        # for cols in self.color_names:
-        #     print(cols.name, cols.translation, cols.prefix, cols.suffix)
-
-    def base_options(self, message, formatting=(), translate=True, newline=False):
+    def base_options(self, message, formatting=(), translate=True, newline=False, no_record=False):
         # displaying text
         if not translate:
-            self.slow_print(message.format(*formatting), newline)
+            self.slow_print(message.format(*formatting), newline, no_record)
         else:
-            self.translate_slow_print(message, formatting, newline)
+            self.translate_slow_print(message, formatting, newline, no_record)
 
         # getting commands from data/commands.csv
         csv_file = open(Path(__file__).parent.parent / "data/commands.csv", "r")
-        trans = csv.reader(csv_file, delimiter=";")
+        trans = reader(csv_file, delimiter=";")
 
         leaving, language_change, print_time_change, pause_change = [], [], [], []
 
@@ -182,7 +181,7 @@ class Settings:
         # changing language
         elif option == "language" or option in language_change and option != "":
             csv_file = open(Path(__file__).parent.parent / "data/translations.csv", "r")
-            trans_list = csv.reader(csv_file, delimiter=";")
+            trans_list = reader(csv_file, delimiter=";")
 
             lang_options, lang_english_names, lang_names = [], [], []
 
